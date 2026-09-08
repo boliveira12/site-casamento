@@ -16,6 +16,17 @@ app.use(express.json());
 // Inicializa tabelas do banco de dados
 initDb();
 
+// ── Rota de Login Admin ──────────────────────────────────────────────────────
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+  if (password === adminPassword) {
+    return res.json({ ok: true });
+  }
+  return res.status(401).json({ ok: false, error: 'Senha incorreta.' });
+});
+
 // Rota de Health Check
 app.get('/api/health', async (req, res) => {
   try {

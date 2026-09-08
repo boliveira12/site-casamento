@@ -16,10 +16,13 @@ import {
   Phone,
   MessageCircle,
   Filter,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
+import { useAdmin } from '../context/AdminContext';
 
 export function GuestList() {
+  const { logout } = useAdmin();
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -198,6 +201,14 @@ export function GuestList() {
           <p className="text-slate-600 text-sm md:text-base font-light">
             Controle o envio dos convites e acompanhe a confirmação de presença de cada convidado especial.
           </p>
+
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sair da área admin
+          </button>
         </div>
 
         {/* Cards de Métricas / Estatísticas */}
