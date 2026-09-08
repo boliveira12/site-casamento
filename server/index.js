@@ -62,7 +62,7 @@ app.post('/api/rsvp', async (req, res) => {
 
   try {
     const isAttending = attending !== undefined ? (attending ? 1 : 0) : 1;
-    const rsvpStatus = isAttending ? 'confirmou' : 'negou';
+    const rsvpStatus = isAttending ? 'Confirmado' : 'Negado';
     const hasPlusOneVal = has_plus_one ? 1 : 0;
     const plusOneNameVal = has_plus_one && plus_one_name ? plus_one_name.trim() : null;
 
@@ -132,8 +132,8 @@ app.post('/api/guest-list', async (req, res) => {
     return res.status(400).json({ error: 'O nome do convidado é obrigatório.' });
   }
 
-  const validStatuses = ['ainda nao respondeu', 'confirmou', 'negou'];
-  const finalStatus = validStatuses.includes(status) ? status : 'ainda nao respondeu';
+  const validStatuses = ['Sem Resposta', 'Confirmado', 'Negado'];
+  const finalStatus = validStatuses.includes(status) ? status : 'Sem Resposta';
   const finalInviteSent = invite_sent ? 1 : 0;
 
   try {
@@ -223,7 +223,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(distPath));
 
   // Fallback para o React Router (SPA)
-  app.get('*', (req, res) => {
+  app.get('{*splat}', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
