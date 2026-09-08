@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: site-casamento
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=file:/app/data/wedding.db
+    volumes:
+      # Persiste o banco SQLite entre reinicializações do container
+      - wedding_data:/app/data
+
+volumes:
+  wedding_data:
+    driver: local

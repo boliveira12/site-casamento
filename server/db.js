@@ -1,0 +1,66 @@
+import { createClient } from '@libsql/client';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const dbUrl = process.env.DATABASE_URL || `file:${path.join(__dirname, 'wedding.db')}`;
+
+export const db = createClient({
+  url: dbUrl,
+});
+
+export async function initDb() {
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS guests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        attending INTEGER DEFAULT 1,
+        dietary_restrictions TEXT,
+        message TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS gift_registry (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        price REAL,
+        image_url TEXT,
+        reserved_by TEXT,
+        reserved INTEGER DEFAULT 0
+      );
+    `);
+
+
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS guest_list (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT,
+        invite_sent INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'ainda nao respondeu',
+        has_plus_one INTEGER DEFAULT 0,
+        plus_one_name TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Migrações dinâmicas para colunas de acompanhante (Plus One)
+    try { await db.execute(`ALTER TABLE guests ADD COLUMN has_plus_one INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE guests ADD COLUMN plus_one_name TEXT`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN has_plus_one INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN plus_one_name TEXT`); } catch (e) {}
+
+    console.log('✅ Banco de dados SQLite inicializado com sucesso!');
+  } catch (error) {
+    console.error('❌ Erro ao inicializar banco de dados SQLite:', error);
+  }
+}
