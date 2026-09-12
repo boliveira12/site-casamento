@@ -106,6 +106,26 @@ app.post('/api/rsvp', async (req, res) => {
       ]
     });
 
+    // Se o convidado marcou acompanhante (+1), cadastra na lista de convidados caso ainda não exista
+    if (hasPlusOneVal && plusOneNameVal) {
+      const existingPlusOne = await db.execute({
+        sql: 'SELECT id, status, group_name FROM guest_list WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1',
+        args: [plusOneNameVal]
+      });
+
+      if (existingPlusOne.rows.length === 0) {
+        await db.execute({
+          sql: `INSERT INTO guest_list (name, phone, invite_sent, status, group_name) VALUES (?, ?, ?, ?, ?)`,
+          args: [plusOneNameVal, null, 1, rsvpStatus, groupName]
+        });
+      } else {
+        await db.execute({
+          sql: `UPDATE guest_list SET status = ? WHERE id = ?`,
+          args: [rsvpStatus, existingPlusOne.rows[0].id]
+        });
+      }
+    }
+
     // Atualiza a lista de convidados (guest_list)
     if (targetGuest) {
       // Se tiver grupo/família, confirma TODOS os integrantes do grupo
@@ -140,13 +160,19 @@ app.post('/api/rsvp', async (req, res) => {
       });
     }
 
+    let messageText = 'Confirmação registrada com sucesso!';
+    if (groupMembers.length > 1) {
+      messageText = `Presença de ${name} e de toda a família (${groupName}) confirmada com sucesso!`;
+    } else if (hasPlusOneVal && plusOneNameVal) {
+      messageText = `Presença de ${name} e do(a) acompanhante ${plusOneNameVal} confirmada com sucesso!`;
+    }
+
     res.status(201).json({
-      message: groupMembers.length > 1
-        ? `Presença de ${name} e de toda a família (${groupName}) confirmada com sucesso!`
-        : 'Confirmação registrada com sucesso!',
+      message: messageText,
       guestId: Number(result.lastInsertRowid),
       groupName,
-      groupMembers
+      groupMembers,
+      plusOneAdded: hasPlusOneVal && plusOneNameVal ? plusOneNameVal : null
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -212,10 +238,10 @@ app.post('/api/guest-list', async (req, res) => {
   }
 });
 
-// Atualizar um convidado (status, checkmark de convite enviado, telefone, nome, grupo)
+// Atualizar um convidado (status, checkmark de convite enviado, telefone, nome, grupo, acompanhante)
 app.put('/api/guest-list/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, phone, invite_sent, status, group_name } = req.body;
+  const { name, phone, invite_sent, status, group_name, has_plus_one, plus_one_name } = req.body;
 
   try {
     const current = await db.execute({
@@ -235,10 +261,14 @@ app.put('/api/guest-list/:id', async (req, res) => {
     const newGroupName = group_name !== undefined 
       ? (group_name && group_name.trim() ? group_name.trim() : null)
       : row.group_name;
+    const newHasPlusOne = has_plus_one !== undefined ? (has_plus_one ? 1 : 0) : row.has_plus_one;
+    const newPlusOneName = plus_one_name !== undefined 
+      ? (plus_one_name && plus_one_name.trim() ? plus_one_name.trim() : null) 
+      : row.plus_one_name;
 
     await db.execute({
-      sql: `UPDATE guest_list SET name = ?, phone = ?, invite_sent = ?, status = ?, group_name = ? WHERE id = ?`,
-      args: [newName, newPhone, newInviteSent, newStatus, newGroupName, id]
+      sql: `UPDATE guest_list SET name = ?, phone = ?, invite_sent = ?, status = ?, group_name = ?, has_plus_one = ?, plus_one_name = ? WHERE id = ?`,
+      args: [newName, newPhone, newInviteSent, newStatus, newGroupName, newHasPlusOne, newPlusOneName, id]
     });
 
     // Se o status foi alterado e o convidado pertence a um grupo/família, atualiza todos daquele grupo
@@ -259,7 +289,9 @@ app.put('/api/guest-list/:id', async (req, res) => {
         phone: newPhone,
         invite_sent: newInviteSent,
         status: newStatus,
-        group_name: newGroupName
+        group_name: newGroupName,
+        has_plus_one: newHasPlusOne,
+        plus_one_name: newPlusOneName
       }
     });
   } catch (error) {
@@ -299,3 +331,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor Express rodando na porta ${PORT}`);
   console.log(`📡 Health Check em http://localhost:${PORT}/api/health`);
 });
+
+export { app };

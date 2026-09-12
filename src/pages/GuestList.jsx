@@ -185,7 +185,9 @@ export function GuestList() {
       phone: guest.phone || '',
       invite_sent: Number(guest.invite_sent) === 1,
       status: guest.status || 'ainda nao respondeu',
-      group_name: guest.group_name || ''
+      group_name: guest.group_name || '',
+      has_plus_one: Boolean(guest.has_plus_one),
+      plus_one_name: guest.plus_one_name || ''
     });
   };
 
@@ -200,7 +202,9 @@ export function GuestList() {
         phone: editingGuest.phone.trim(),
         invite_sent: editingGuest.invite_sent,
         status: editingGuest.status,
-        group_name: editingGuest.group_name ? editingGuest.group_name.trim() : null
+        group_name: editingGuest.group_name ? editingGuest.group_name.trim() : null,
+        has_plus_one: editingGuest.has_plus_one,
+        plus_one_name: editingGuest.has_plus_one && editingGuest.plus_one_name ? editingGuest.plus_one_name.trim() : null
       });
       setEditingGuest(null);
     } catch (err) {
@@ -577,8 +581,16 @@ export function GuestList() {
                         className="hover:bg-slate-50/80 transition-colors"
                       >
                         {/* Nome */}
-                        <td className="py-4 px-4 md:px-6 font-semibold text-slate-900">
-                          {guest.name}
+                        <td className="py-4 px-4 md:px-6">
+                          <div className="font-semibold text-slate-900">{guest.name}</div>
+                          {Boolean(guest.has_plus_one) && guest.plus_one_name && (
+                            <div className="text-[11px] text-teal-700 font-medium flex items-center gap-1 mt-0.5">
+                              <span className="px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 text-[10px] font-bold text-teal-800">
+                                +1
+                              </span>
+                              <span>Acompanhante: {guest.plus_one_name}</span>
+                            </div>
+                          )}
                         </td>
 
                         {/* Grupo / Família */}
@@ -787,6 +799,42 @@ export function GuestList() {
                   />
                   <span>Convite Enviado</span>
                 </label>
+              </div>
+
+              {/* Seção Acompanhante (+1) */}
+              <div className="p-3.5 rounded-xl border border-cyan-100 bg-sky-50/40 space-y-2.5">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 font-medium">
+                  <input
+                    type="checkbox"
+                    checked={editingGuest.has_plus_one}
+                    onChange={(e) =>
+                      setEditingGuest({
+                        ...editingGuest,
+                        has_plus_one: e.target.checked,
+                        plus_one_name: e.target.checked ? editingGuest.plus_one_name : ''
+                      })
+                    }
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 accent-teal-600"
+                  />
+                  <span>Possui Acompanhante (+1)</span>
+                </label>
+
+                {editingGuest.has_plus_one && (
+                  <div className="pl-6 space-y-1">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                      Nome do Acompanhante
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Nome do acompanhante"
+                      value={editingGuest.plus_one_name}
+                      onChange={(e) =>
+                        setEditingGuest({ ...editingGuest, plus_one_name: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-sm bg-white"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
