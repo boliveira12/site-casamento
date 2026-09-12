@@ -28,6 +28,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/lista-convidado"
+                  element={
+                    <ProtectedRoute>
+                      <GuestList />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/rsvp" element={<Rsvp />} />
                 <Route path="/presentes" element={<Gifts />} />
               </Routes>

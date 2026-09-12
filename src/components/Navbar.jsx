@@ -43,9 +43,6 @@ export function Navbar() {
             <NavLink to="/" className={activeClass}>
               Início
             </NavLink>
-            <NavLink to="/lista-convidados" className={activeClass}>
-              Lista de Convidados
-            </NavLink>
             <NavLink to="/rsvp" className={activeClass}>
               RSVP Presença
             </NavLink>
