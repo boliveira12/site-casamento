@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 import { useCart } from '../context/CartContext';
+import { generatePixPayload } from '../utils/pixPayload';
 import {
   ShoppingBag,
   X,
@@ -32,11 +34,11 @@ export function CartDrawer() {
   const [guestInfo, setGuestInfo] = useState({ name: '', email: '', message: '' });
   const [copiedPix, setCopiedPix] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const pixKey = "00020126580014BR.GOV.BCB.PIX0136casamento-luiz-luiza-2026@banco.com5204000053039865802BR5925Luiz e Luiza Casamento6009SALVADOR62070503***6304E8A2";
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [pixPayloadStr, setPixPayloadStr] = useState('');
 
   const handleCopyPix = () => {
-    navigator.clipboard.writeText(pixKey);
+    navigator.clipboard.writeText(pixPayloadStr);
     setCopiedPix(true);
     setTimeout(() => setCopiedPix(false), 3000);
   };
@@ -48,14 +50,29 @@ export function CartDrawer() {
     }, 300);
   };
 
-  const handleSubmitCheckout = (e) => {
+  const handleSubmitCheckout = async (e) => {
     e.preventDefault();
     if (!guestInfo.name.trim()) return;
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Gera o payload EMV/BR Code com o valor do carrinho
+      const payload = generatePixPayload(totalPrice);
+      setPixPayloadStr(payload);
+
+      // Gera a imagem QR Code como data URL
+      const dataUrl = await QRCode.toDataURL(payload, {
+        width: 280,
+        margin: 2,
+        color: { dark: '#0f172a', light: '#ffffff' },
+        errorCorrectionLevel: 'M'
+      });
+      setQrDataUrl(dataUrl);
       setStep('pix');
-    }, 600);
+    } catch (err) {
+      console.error('Erro ao gerar QR Code PIX:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleConfirmPixPayment = () => {
@@ -277,50 +294,34 @@ export function CartDrawer() {
                   </p>
                 </div>
 
-                {/* QR Code Graphic Box */}
+                {/* QR Code Real — gerado via qrcode lib */}
                 <div className="bg-white p-6 rounded-2xl border border-cyan-100 shadow-md inline-block mx-auto relative group">
-                  <div className="w-48 h-48 bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center relative overflow-hidden">
-                    {/* Simulated SVG QR Patterns */}
-                    <div className="w-full h-full bg-white rounded-lg p-2 flex flex-col justify-between">
-                      <div className="flex justify-between">
-                        <div className="w-10 h-10 bg-slate-900 rounded-md p-1">
-                          <div className="w-full h-full border-2 border-white bg-slate-900 rounded-xs"></div>
-                        </div>
-                        <div className="w-6 h-6 bg-slate-300 rounded-xs"></div>
-                        <div className="w-10 h-10 bg-slate-900 rounded-md p-1">
-                          <div className="w-full h-full border-2 border-white bg-slate-900 rounded-xs"></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-center items-center gap-1.5 my-2">
-                        <div className="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs">
-                          PIX
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-700">LUIZ & LUIZA</span>
-                      </div>
-                      <div className="flex justify-between items-end">
-                        <div className="w-10 h-10 bg-slate-900 rounded-md p-1">
-                          <div className="w-full h-full border-2 border-white bg-slate-900 rounded-xs"></div>
-                        </div>
-                        <div className="w-8 h-8 bg-slate-200 rounded-xs"></div>
-                        <div className="w-6 h-6 bg-teal-600 rounded-xs"></div>
-                      </div>
+                  {qrDataUrl ? (
+                    <img
+                      src={qrDataUrl}
+                      alt="QR Code PIX"
+                      className="w-56 h-56 mx-auto rounded-xl"
+                    />
+                  ) : (
+                    <div className="w-56 h-56 bg-slate-100 rounded-xl flex items-center justify-center">
+                      <span className="text-xs text-slate-400">Gerando QR Code...</span>
                     </div>
-                  </div>
+                  )}
                   <p className="text-[11px] text-slate-500 font-medium mt-3">
                     Valor Total: <strong className="text-slate-900 text-sm">{formatBRL(totalPrice)}</strong>
                   </p>
                 </div>
 
-                {/* Copy PIX Key */}
+                {/* Pix Copia e Cola */}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">
-                    Copia e Cola PIX
+                    Pix Copia e Cola
                   </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       readOnly
-                      value={pixKey}
+                      value={pixPayloadStr}
                       className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono text-slate-600 truncate"
                     />
                     <button
