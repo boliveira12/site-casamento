@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Waves, Heart, CheckCircle2, AlertCircle, Send, UserCheck, ShieldCheck, Lock, KeyRound, Search, X, UserPlus } from 'lucide-react';
+import { Waves, CheckCircle2, AlertCircle, Send, ShieldCheck, Lock, KeyRound, Search, X, UserPlus, Users } from 'lucide-react';
 
 export function Rsvp() {
   const [formData, setFormData] = useState({
@@ -63,6 +63,15 @@ export function Rsvp() {
     }));
   };
 
+  // Membros da família/grupo vinculados ao convidado selecionado
+  const familyMembers = selectedGuest && selectedGuest.group_name
+    ? guestListOptions.filter(
+        (g) =>
+          g.group_name &&
+          g.group_name.trim().toLowerCase() === selectedGuest.group_name.trim().toLowerCase()
+      )
+    : [];
+
   // Filtragem dos convidados para sugestão
   const matchingGuests = nameInput.trim()
     ? guestListOptions.filter((g) =>
@@ -124,9 +133,13 @@ export function Rsvp() {
       const data = await res.json();
 
       if (res.ok) {
+        const successMsg = data.groupMembers && data.groupMembers.length > 1
+          ? `Presença de toda a família (${data.groupName}) registrada com sucesso! Integrantes: ${data.groupMembers.join(', ')}.`
+          : (data.message || 'Sua presença foi registrada com sucesso! Mal podemos esperar para nos ver na praia.');
+
         setStatus({
           loading: false,
-          success: 'Sua presença foi registrada com sucesso! Mal podemos esperar para nos ver na praia.',
+          success: successMsg,
           error: null
         });
         setFormData({
@@ -296,6 +309,40 @@ export function Rsvp() {
                 </p>
               )}
             </div>
+
+            {/* Card de Informação da Família / Grupo */}
+            {selectedGuest && selectedGuest.group_name && familyMembers.length > 1 && (
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-sky-50/80 to-teal-50/60 border border-indigo-200/80 text-indigo-950 space-y-3 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-900">
+                    Grupo Familiar: <span className="text-indigo-700 font-extrabold">{selectedGuest.group_name}</span>
+                  </h4>
+                </div>
+                <p className="text-xs text-indigo-900/90 leading-relaxed">
+                  Você está vinculado(a) a um grupo familiar. Ao confirmar a sua presença, todos os <strong>{familyMembers.length} integrantes</strong> da família serão confirmados conjuntamente:
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {familyMembers.map((member) => (
+                    <span
+                      key={member.id}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-1.5 ${
+                        member.id === selectedGuest.id
+                          ? 'bg-indigo-600 text-white border-indigo-600 font-bold shadow-xs'
+                          : 'bg-white/90 text-indigo-950 border-indigo-200'
+                      }`}
+                    >
+                      <span>{member.name}</span>
+                      {member.id === selectedGuest.id && (
+                        <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">
+                          Você
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* ABA DE CONFIRMAÇÃO DOS 4 ÚLTIMOS DÍGITOS DO TELEFONE */}
             {selectedGuest && (
