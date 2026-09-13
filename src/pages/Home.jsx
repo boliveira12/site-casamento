@@ -156,7 +156,7 @@ export function Home() {
           </div>
           <h3 className="text-xl font-serif font-bold mb-2 text-slate-900">Data & Horário</h3>
           <p className="text-slate-700 font-semibold">Domingo, 06 de Dezembro de 2026</p>
-          <p className="text-teal-700 text-xs font-semibold mt-1">Cerimônia às 10:30 (Pôr do Sol & Mar)</p>
+          <p className="text-teal-700 text-xs font-semibold mt-1">Cerimônia às 14:00</p>
         </div>
 
         {/* Card 2: Local Praiano */}
@@ -192,13 +192,6 @@ export function Home() {
                 : 'bg-rose-500'
               }`}
           />
-          <span>
-            {apiStatus.loading
-              ? 'Conectando ao servidor...'
-              : apiStatus.online
-                ? `Backend & Banco de Dados (${apiStatus.database}) ativos`
-                : 'Backend desconectado'}
-          </span>
         </div>
       </footer>
 
