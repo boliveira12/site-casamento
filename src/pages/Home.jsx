@@ -11,7 +11,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
-import heroCoupleImg from '../assets/hero-couple.jpg';
+import heroCoupleImg from '../assets/foto_home_nova.jfif';
 
 export function Home() {
   const [apiStatus, setApiStatus] = useState({ loading: true, online: false });
@@ -39,7 +39,7 @@ export function Home() {
 
         {/* Imagem de Fundo Oficial do Casal */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-transform duration-1000"
+          className="absolute inset-0 bg-cover bg-[center_top_20%] bg-no-repeat transform scale-105 transition-transform duration-1000"
           style={{
             backgroundImage: `url(${heroCoupleImg})`
           }}
@@ -52,13 +52,11 @@ export function Home() {
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 flex flex-col items-center space-y-6 animate-fade-in">
 
           {/* Logo Oficial Emblema em Destaque */}
-          <div className="relative p-1.5 rounded-full bg-white/90 shadow-2xl border-4 border-amber-100/90 transform hover:scale-105 transition-all duration-500 my-2 backdrop-blur-md">
-            <img
-              src={logoImg}
-              alt="Logo Oficial Luiz Gustavo e Luíza"
-              className="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover shadow-inner"
-            />
-          </div>
+          <img
+            src={logoImg}
+            alt="Logo Oficial Luiz Gustavo e Luíza"
+            className="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover shadow-inner"
+          />
 
           {/* Nome do Casal em caixa alta elegante */}
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif tracking-[0.2em] font-light text-white uppercase drop-shadow-md">
@@ -180,21 +178,6 @@ export function Home() {
         </div>
 
       </section>
-
-      {/* SYSTEM STATUS FOOTER */}
-      <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-cyan-100/80 mt-12 text-center text-xs text-slate-500">
-        <div className="inline-flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-cyan-100 shadow-2xs backdrop-blur-md">
-          <span
-            className={`w-2.5 h-2.5 rounded-full ${apiStatus.loading
-              ? 'bg-amber-400 animate-pulse'
-              : apiStatus.online
-                ? 'bg-emerald-500'
-                : 'bg-rose-500'
-              }`}
-          />
-        </div>
-      </footer>
-
     </div>
   );
 }
