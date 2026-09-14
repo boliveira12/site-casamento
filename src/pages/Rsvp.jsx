@@ -28,7 +28,7 @@ export function Rsvp() {
           setGuests(data.guests);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const loadGuestList = () => {
@@ -39,7 +39,7 @@ export function Rsvp() {
           setGuestListOptions(data.guests);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -66,17 +66,17 @@ export function Rsvp() {
   // Membros da família/grupo vinculados ao convidado selecionado
   const familyMembers = selectedGuest && selectedGuest.group_name
     ? guestListOptions.filter(
-        (g) =>
-          g.group_name &&
-          g.group_name.trim().toLowerCase() === selectedGuest.group_name.trim().toLowerCase()
-      )
+      (g) =>
+        g.group_name &&
+        g.group_name.trim().toLowerCase() === selectedGuest.group_name.trim().toLowerCase()
+    )
     : [];
 
   // Filtragem dos convidados para sugestão
   const matchingGuests = nameInput.trim()
     ? guestListOptions.filter((g) =>
-        g.name.toLowerCase().includes(nameInput.trim().toLowerCase())
-      )
+      g.name.toLowerCase().includes(nameInput.trim().toLowerCase())
+    )
     : [];
 
   // Lógica de verificação dos 4 últimos dígitos do telefone
@@ -88,7 +88,7 @@ export function Rsvp() {
   };
 
   const expectedLast4 = selectedGuest ? getExpectedLast4(selectedGuest.phone) : null;
-  
+
   const hasRegisteredPhone = Boolean(expectedLast4);
   const isPhoneConfirmed = selectedGuest
     ? hasRegisteredPhone
@@ -167,7 +167,7 @@ export function Rsvp() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50/70 via-slate-50 to-amber-50/40 py-12 px-6 font-sans">
       <div className="max-w-4xl mx-auto space-y-10">
-        
+
         {/* Header */}
         <div className="text-center space-y-4 max-w-xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-semibold uppercase tracking-widest shadow-2xs">
@@ -180,7 +180,7 @@ export function Rsvp() {
           </h1>
 
           <p className="text-slate-600 text-sm md:text-base font-light">
-            Por favor, confirme sua presença até <strong>15 de Setembro de 2026</strong> para prepararmos cada detalhe à beira-mar com muito carinho.
+            Por favor, confirme sua presença até <strong>28 de Setembro de 2026</strong> para prepararmos cada detalhe à beira-mar com muito carinho.
           </p>
         </div>
 
@@ -215,13 +215,13 @@ export function Rsvp() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6 relative z-20">
-            
+
             {/* Campo de Busca Escrita do Nome do Convidado */}
             <div className="relative">
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                 Digite seu Nome <span className="text-rose-500">*</span>
               </label>
-              
+
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
@@ -249,11 +249,10 @@ export function Rsvp() {
                       selectGuest(exactMatch);
                     }
                   }}
-                  className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50 focus:bg-white focus:ring-2 outline-none transition text-sm text-slate-800 font-medium ${
-                    selectedGuest
+                  className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50 focus:bg-white focus:ring-2 outline-none transition text-sm text-slate-800 font-medium ${selectedGuest
                       ? 'border-emerald-400 focus:ring-emerald-500 bg-emerald-50/30'
                       : 'border-slate-200 focus:ring-teal-500'
-                  }`}
+                    }`}
                 />
 
                 {nameInput && (
@@ -326,11 +325,10 @@ export function Rsvp() {
                   {familyMembers.map((member) => (
                     <span
                       key={member.id}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-1.5 ${
-                        member.id === selectedGuest.id
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-1.5 ${member.id === selectedGuest.id
                           ? 'bg-indigo-600 text-white border-indigo-600 font-bold shadow-xs'
                           : 'bg-white/90 text-indigo-950 border-indigo-200'
-                      }`}
+                        }`}
                     >
                       <span>{member.name}</span>
                       {member.id === selectedGuest.id && (
@@ -346,13 +344,12 @@ export function Rsvp() {
 
             {/* ABA DE CONFIRMAÇÃO DOS 4 ÚLTIMOS DÍGITOS DO TELEFONE */}
             {selectedGuest && (
-              <div className={`p-5 rounded-2xl border transition-all ${
-                isPhoneConfirmed
+              <div className={`p-5 rounded-2xl border transition-all ${isPhoneConfirmed
                   ? 'bg-emerald-50/70 border-emerald-200'
                   : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                  ? 'bg-rose-50/70 border-rose-200'
-                  : 'bg-teal-50/50 border-teal-200/80'
-              }`}>
+                    ? 'bg-rose-50/70 border-rose-200'
+                    : 'bg-teal-50/50 border-teal-200/80'
+                }`}>
                 <div className="flex items-center gap-2 mb-3">
                   {isPhoneConfirmed ? (
                     <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
@@ -376,13 +373,12 @@ export function Rsvp() {
                         placeholder="Ex: 5432"
                         value={phoneDigitsInput}
                         onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
-                        className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${
-                          isPhoneConfirmed
+                        className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
                             ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
                             : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                            ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
-                            : 'border-teal-300 focus:ring-teal-500 text-slate-800'
-                        }`}
+                              ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
+                              : 'border-teal-300 focus:ring-teal-500 text-slate-800'
+                          }`}
                       />
 
                       <div className="text-xs font-semibold">
