@@ -10,7 +10,6 @@ import {
   Gift,
   Sparkles
 } from 'lucide-react';
-import logoImg from '../assets/logo.png';
 import heroCoupleImg from '../assets/foto_home_nova.jfif';
 
 export function Home() {
