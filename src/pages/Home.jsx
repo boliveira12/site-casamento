@@ -51,13 +51,6 @@ export function Home() {
         {/* Conteúdo Central do Hero (Logo Oficial + Nomes + Data) */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 flex flex-col items-center space-y-6 animate-fade-in">
 
-          {/* Logo Oficial Emblema em Destaque */}
-          <img
-            src={logoImg}
-            alt="Logo Oficial Luiz Gustavo e Luíza"
-            className="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover shadow-inner"
-          />
-
           {/* Nome do Casal em caixa alta elegante */}
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif tracking-[0.2em] font-light text-white uppercase drop-shadow-md">
             LUIZ GUSTAVO E LUÍZA
