@@ -15,75 +15,75 @@ import {
 const mockGifts = [
   {
     id: 1,
-    title: 'Jogo de Jantar 42 Peças Porcelana Fine',
-    price: 'R$ 450,00',
-    category: 'Cozinha',
-    description: 'Aparelho de jantar refinado para receber a família em momentos especiais.',
-    image: 'https://images.unsplash.com/photo-1615865417236-d67f58e17e66?auto=format&fit=crop&w=800&q=80'
+    title: 'Passeio de Balão na Capadócia',
+    price: 'R$ 500,00',
+    category: 'Lua de Mel',
+    description: 'Um passeio inesquecível para celebrar nosso amor em um dos lugares mais românticos do mundo.',
+    image: 'https://www.felizturismo.com/images/balloon-hero.webp'
   },
   {
     id: 2,
-    title: 'Cafeteira Espresso Automática Touch',
-    price: 'R$ 680,00',
-    category: 'Eletro',
-    description: 'Para começarmos os dias ensolarados com um bom café fresco.',
-    image: 'https://images.unsplash.com/photo-1517668808822-9ebe02f2a6e8?auto=format&fit=crop&w=800&q=80'
+    title: 'Ingressos Para o Louvre',
+    price: 'R$ 200,00',
+    category: 'Lua de Mel',
+    description: 'Visitar o museu mais famoso do mundo.',
+    image: 'https://res.klook.com/images/w_1200,h_630,c_fill,q_65/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/nla50wcnftdwisfbtrl2/MuseudoLouvrecomvisitaguiada%C3%A0MonaLisa-Klook.jpg'
   },
   {
     id: 3,
-    title: 'Jogo de Cama Lino Premium 400 Fios',
-    price: 'R$ 390,00',
-    category: 'Cama & Banho',
-    description: 'Lençóis em puro linho leve, frescos e ideais para o clima praiano.',
-    image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80'
+    title: 'Café da Manhã em Veneza',
+    price: 'R$ 150,00',
+    category: 'Lua de Mel',
+    description: 'Um café da manhã delicioso para começar o dia.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYxy6WqrPJGEQmoT11TYI_yzMp2WJdrpPqnpiEXfvMuQ&s=10'
   },
   {
     id: 4,
-    title: 'Faqueiro Inox 72 Peças em Maleta',
-    price: 'R$ 290,00',
-    category: 'Cozinha',
-    description: 'Talheres de inox de altíssima durabilidade e acabamento espelhado.',
-    image: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=800&q=80'
+    title: 'Passeio nos Templos de Kyoto',
+    price: 'R$ 400,00',
+    category: 'Lua de Mel',
+    description: 'Explorar a beleza e a espiritualidade dos templos de Kyoto.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW79wifdUx2f5E3TlEJzkxIUlqJ_1ZXU3o4Qtmw-lZXA&s=10'
   },
   {
     id: 5,
-    title: 'Cota - Jantar Romântico Pé na Areia',
-    price: 'R$ 250,00',
+    title: 'Um Gelato em Florença',
+    price: 'R$ 50,00',
     category: 'Lua de Mel',
-    description: 'Jantar à luz de velas e tochas à beira-mar durante nossa lua de mel.',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+    description: 'Um gelato para adoçar a vida.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8aRXrZW1cKtOEGAWKOtoYMAwoYEet0_73xIcEEgTafA&s=10'
   },
   {
     id: 6,
-    title: 'Cota - Passeio de Catamarã nas Ilhas',
+    title: 'Mergulho com os Peixes em Búzios',
     price: 'R$ 350,00',
     category: 'Lua de Mel',
-    description: 'Um dia incrível navegando pelas águas cristalinas com brinde de champanhe.',
+    description: 'Um dia incrível navegando pelas águas cristalinas.',
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 7,
-    title: 'Kit Cadeiras de Praia & Guarda-Sol Bamboo',
-    price: 'R$ 320,00',
-    category: 'Praia & Lazer',
-    description: 'Kit de praia super elegante para curtir os fins de semana em Vilas.',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+    title: 'Aluguel de Bicicletas em Berlim',
+    price: 'R$ 100,00',
+    category: 'Lua de Mel',
+    description: 'Um passeio de bicicleta pela cidade.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZT2BuOpbrRI01kVoh8aTA3ztu2S5k6j9KnMhPbNrjVA&s=10'
   },
   {
     id: 8,
-    title: 'Adeva Climatizada & Taças de Cristal',
-    price: 'R$ 520,00',
-    category: 'Eletro',
-    description: 'Para degustarmos bons vinhos na varanda com a brisa do mar.',
-    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80'
+    title: 'Jantar Romântico nas Bahamas',
+    price: 'R$ 250,00',
+    category: 'Lua de Mel',
+    description: 'Um jantar romântico ao pôr do sol, com vista para o mar.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBcfB_6H2vvsqSFmd4en7rtH-6r6m_CX27bbSNL_vKYQ&s=10'
   },
   {
     id: 9,
-    title: 'Cota - Dia de Spa Casal à Beira-Mar',
-    price: 'R$ 420,00',
+    title: 'Passeio de Safari na Africa do Sul',
+    price: 'R$ 300,00',
     category: 'Lua de Mel',
-    description: 'Massagem relaxante ao som das ondas do mar para renovar as energias.',
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
+    description: 'Um dia incrível de safári, com vista para os animais.',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7-VWlLBCyxHYfQefP-wIvKhd1qw138RB4iBovns87fQ&s=10'
   }
 ];
 
@@ -98,7 +98,7 @@ export function Gifts() {
   const filteredGifts = mockGifts.filter((gift) => {
     const matchesCategory = selectedCategory === 'Todos' || gift.category === selectedCategory;
     const matchesSearch = gift.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          gift.description.toLowerCase().includes(searchTerm.toLowerCase());
+      gift.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -113,7 +113,7 @@ export function Gifts() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50/70 via-slate-50 to-amber-50/40 py-12 px-6 font-sans">
       <div className="max-w-6xl mx-auto space-y-10">
-        
+
         {/* Banner de Boas-Vindas */}
         <div className="text-center space-y-4 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-semibold uppercase tracking-widest shadow-2xs">
@@ -154,11 +154,10 @@ export function Gifts() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-teal-600 text-white shadow-xs'
-                    : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                }`}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${selectedCategory === cat
+                  ? 'bg-teal-600 text-white shadow-xs'
+                  : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                  }`}
               >
                 {cat}
               </button>
@@ -230,11 +229,10 @@ export function Gifts() {
 
                     <button
                       onClick={() => handleAdd(gift)}
-                      className={`px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-2 transition-all shadow-xs ${
-                        isAdded
-                          ? 'bg-emerald-600 text-white scale-105'
-                          : 'bg-teal-600 hover:bg-teal-700 text-white hover:shadow-md'
-                      }`}
+                      className={`px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-2 transition-all shadow-xs ${isAdded
+                        ? 'bg-emerald-600 text-white scale-105'
+                        : 'bg-teal-600 hover:bg-teal-700 text-white hover:shadow-md'
+                        }`}
                     >
                       {isAdded ? (
                         <>
