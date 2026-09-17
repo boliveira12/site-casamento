@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Waves, CheckCircle2, AlertCircle, Send, ShieldCheck, Lock, KeyRound, Search, X, UserPlus, Users } from 'lucide-react';
+import { Waves, CheckCircle2, AlertCircle, Send, ShieldCheck, Lock, KeyRound, Search, X, Users } from 'lucide-react';
 
 export function Rsvp() {
   const [formData, setFormData] = useState({
@@ -7,8 +7,6 @@ export function Rsvp() {
     name: '',
     phone: '',
     attending: true,
-    has_plus_one: false,
-    plus_one_name: '',
     message: ''
   });
 
@@ -58,8 +56,6 @@ export function Rsvp() {
       name: g.name,
       phone: g.phone || prev.phone,
       attending: g.status === 'negou' ? false : true,
-      has_plus_one: Boolean(g.has_plus_one),
-      plus_one_name: g.plus_one_name || ''
     }));
   };
 
@@ -113,15 +109,6 @@ export function Rsvp() {
       return;
     }
 
-    if (formData.has_plus_one && !formData.plus_one_name.trim()) {
-      setStatus({
-        loading: false,
-        success: null,
-        error: 'Por favor, informe o nome do seu acompanhante.'
-      });
-      return;
-    }
-
     setStatus({ loading: true, success: null, error: null });
 
     try {
@@ -147,8 +134,6 @@ export function Rsvp() {
           name: '',
           phone: '',
           attending: true,
-          has_plus_one: false,
-          plus_one_name: '',
           message: ''
         });
         setSelectedGuest(null);
@@ -250,8 +235,8 @@ export function Rsvp() {
                     }
                   }}
                   className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50 focus:bg-white focus:ring-2 outline-none transition text-sm text-slate-800 font-medium ${selectedGuest
-                      ? 'border-emerald-400 focus:ring-emerald-500 bg-emerald-50/30'
-                      : 'border-slate-200 focus:ring-teal-500'
+                    ? 'border-emerald-400 focus:ring-emerald-500 bg-emerald-50/30'
+                    : 'border-slate-200 focus:ring-teal-500'
                     }`}
                 />
 
@@ -326,8 +311,8 @@ export function Rsvp() {
                     <span
                       key={member.id}
                       className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-1.5 ${member.id === selectedGuest.id
-                          ? 'bg-indigo-600 text-white border-indigo-600 font-bold shadow-xs'
-                          : 'bg-white/90 text-indigo-950 border-indigo-200'
+                        ? 'bg-indigo-600 text-white border-indigo-600 font-bold shadow-xs'
+                        : 'bg-white/90 text-indigo-950 border-indigo-200'
                         }`}
                     >
                       <span>{member.name}</span>
@@ -345,10 +330,10 @@ export function Rsvp() {
             {/* ABA DE CONFIRMAÇÃO DOS 4 ÚLTIMOS DÍGITOS DO TELEFONE */}
             {selectedGuest && (
               <div className={`p-5 rounded-2xl border transition-all ${isPhoneConfirmed
-                  ? 'bg-emerald-50/70 border-emerald-200'
-                  : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                    ? 'bg-rose-50/70 border-rose-200'
-                    : 'bg-teal-50/50 border-teal-200/80'
+                ? 'bg-emerald-50/70 border-emerald-200'
+                : phoneDigitsInput.length === 4 && !isPhoneConfirmed
+                  ? 'bg-rose-50/70 border-rose-200'
+                  : 'bg-teal-50/50 border-teal-200/80'
                 }`}>
                 <div className="flex items-center gap-2 mb-3">
                   {isPhoneConfirmed ? (
@@ -374,10 +359,10 @@ export function Rsvp() {
                         value={phoneDigitsInput}
                         onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
                         className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
-                            ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
-                            : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                              ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
-                              : 'border-teal-300 focus:ring-teal-500 text-slate-800'
+                          ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
+                          : phoneDigitsInput.length === 4 && !isPhoneConfirmed
+                            ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
+                            : 'border-teal-300 focus:ring-teal-500 text-slate-800'
                           }`}
                       />
 
@@ -450,50 +435,6 @@ export function Rsvp() {
                 </select>
               </div>
             </div>
-
-            {/* SEÇÃO PLUS ONE (ACOMPANHANTE) */}
-            {formData.attending && (
-              <div className="p-5 rounded-2xl border border-cyan-100 bg-sky-50/50 space-y-4">
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2.5 cursor-pointer selection:bg-none text-sm font-bold text-slate-800">
-                    <input
-                      type="checkbox"
-                      disabled={!isPhoneConfirmed}
-                      checked={formData.has_plus_one}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          has_plus_one: e.target.checked,
-                          plus_one_name: e.target.checked ? prev.plus_one_name : ''
-                        }))
-                      }
-                      className="w-4.5 h-4.5 rounded text-teal-600 focus:ring-teal-500 border-slate-300 accent-teal-600 cursor-pointer disabled:opacity-50"
-                    />
-                    <span className="flex items-center gap-1.5">
-                      <UserPlus className="w-4 h-4 text-teal-600" />
-                      Vou levar um acompanhante (+1)
-                    </span>
-                  </label>
-                </div>
-
-                {formData.has_plus_one && (
-                  <div className="space-y-1.5 pl-6 border-l-2 border-teal-400">
-                    <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                      Nome Completo do Acompanhante <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required={formData.has_plus_one}
-                      disabled={!isPhoneConfirmed}
-                      placeholder="Ex: Gabriel Santos"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-teal-500 outline-none transition text-sm text-slate-800 disabled:opacity-50"
-                      value={formData.plus_one_name}
-                      onChange={(e) => setFormData({ ...formData, plus_one_name: e.target.value })}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
