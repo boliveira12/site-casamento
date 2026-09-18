@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { Rsvp } from './pages/Rsvp';
 import { Gifts } from './pages/Gifts';
 import { GuestList } from './pages/GuestList';
+import { PrivateMessages } from './pages/PrivateMessages';
 import { CartProvider } from './context/CartContext';
 import { CartDrawer } from './components/CartDrawer';
 import { AdminProvider } from './context/AdminContext';
@@ -38,6 +39,14 @@ export default function App() {
                 />
                 <Route path="/rsvp" element={<Rsvp />} />
                 <Route path="/presentes" element={<Gifts />} />
+                <Route
+                  path="/mensagens"
+                  element={
+                    <ProtectedRoute>
+                      <PrivateMessages />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
             </main>
             <CartDrawer />

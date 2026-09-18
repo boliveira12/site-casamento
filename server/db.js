@@ -60,6 +60,7 @@ export async function initDb() {
     try { await db.execute(`ALTER TABLE guest_list ADD COLUMN has_plus_one INTEGER DEFAULT 0`); } catch (e) {}
     try { await db.execute(`ALTER TABLE guest_list ADD COLUMN plus_one_name TEXT`); } catch (e) {}
     try { await db.execute(`ALTER TABLE guest_list ADD COLUMN group_name TEXT`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE guests ADD COLUMN private_message INTEGER DEFAULT 0`); } catch (e) {}
 
     console.log('✅ Banco de dados SQLite inicializado com sucesso!');
   } catch (error) {

@@ -7,7 +7,8 @@ export function Rsvp() {
     name: '',
     phone: '',
     attending: true,
-    message: ''
+    message: '',
+    private_message: false
   });
 
   const [guestListOptions, setGuestListOptions] = useState([]);
@@ -168,7 +169,8 @@ export function Rsvp() {
           name: '',
           phone: '',
           attending: true,
-          message: ''
+          message: '',
+          private_message: false
         });
         setSelectedGuest(null);
         setNameInput('');
@@ -479,6 +481,16 @@ export function Rsvp() {
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                 Recado para Luiz & Luiza
+              </label>
+              <label className="flex items-center gap-2 mb-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  disabled={!isPhoneConfirmed || isSelectedGuestAnswered}
+                  checked={formData.private_message}
+                  onChange={(e) => setFormData({ ...formData, private_message: e.target.checked })}
+                  className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <span className="text-xs text-slate-600">Apenas para os noivos</span>
               </label>
               <textarea
                 rows={3}

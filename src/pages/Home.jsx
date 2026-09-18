@@ -8,7 +8,8 @@ import {
   Heart,
   Gift,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Quote
 } from 'lucide-react';
 import heroCoupleImg from '../assets/foto_home_nova.jfif';
 import foto1 from '../assets/foto1.jpeg';
@@ -45,6 +46,7 @@ export function Home() {
   const [touchEnd, setTouchEnd] = useState(null);
   // Countdown state
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [guestMessages, setGuestMessages] = useState([]);
 
   useEffect(() => {
     const target = new Date('2026-12-06T14:00:00-03:00');
@@ -113,6 +115,15 @@ export function Home() {
       .catch(() => {
         setApiStatus({ loading: false, online: false });
       });
+
+    fetch('/api/messages')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.messages && Array.isArray(data.messages)) {
+          setGuestMessages(data.messages);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -304,8 +315,8 @@ export function Home() {
       <section className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-center gap-3 sm:gap-4">
           {[
-            { value: timeLeft.days,    label: 'Dias' },
-            { value: timeLeft.hours,   label: 'Horas' },
+            { value: timeLeft.days, label: 'Dias' },
+            { value: timeLeft.hours, label: 'Horas' },
             { value: timeLeft.minutes, label: 'Minutos' },
             { value: timeLeft.seconds, label: 'Segundos' },
           ].map(({ value, label }) => (
@@ -359,6 +370,45 @@ export function Home() {
         </div>
 
       </section>
+
+      {/* MENSAGEM DOS NOSSOS CONVIDADOS */}
+      {guestMessages.length > 0 && (
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 tracking-wide">
+              Mensagem dos nossos convidados
+            </h2>
+            <div className="w-16 h-0.5 bg-amber-300 mx-auto mt-3 rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {guestMessages.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-col justify-between p-6 rounded-2xl border border-amber-200/50 shadow-xs hover:shadow-md transition-all duration-300"
+                style={{ backgroundColor: '#faf6f0' }}
+              >
+                <div className="mb-4">
+                  <Quote className="w-5 h-5 text-amber-500/70 mb-2 rotate-180" />
+                  <p className="text-slate-700 text-sm md:text-base leading-relaxed italic">
+                    "{item.message}"
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-amber-200/50 flex items-center justify-between">
+                  <span className="font-serif font-bold text-slate-900 text-sm">
+                    {item.name}
+                  </span>
+                  {item.created_at && !isNaN(new Date(String(item.created_at).replace(' ', 'T')).getTime()) && (
+                    <span className="text-[11px] font-mono text-slate-400">
+                      {new Date(String(item.created_at).replace(' ', 'T')).toLocaleDateString('pt-BR')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -52,9 +52,41 @@ app.get('/api/guests', async (req, res) => {
   }
 });
 
+// Mensagens públicas enviadas pelos convidados no RSVP (exibidas na Home)
+app.get('/api/messages', async (req, res) => {
+  try {
+    const result = await db.execute(`
+      SELECT id, name, message, created_at 
+      FROM guests 
+      WHERE message IS NOT NULL AND TRIM(message) != '' 
+        AND (private_message IS NULL OR private_message = 0)
+      ORDER BY created_at DESC
+    `);
+    res.json({ messages: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mensagens privadas (apenas para os noivos) — protegida por senha admin
+app.get('/api/messages/private', async (req, res) => {
+  try {
+    const result = await db.execute(`
+      SELECT id, name, message, created_at 
+      FROM guests 
+      WHERE message IS NOT NULL AND TRIM(message) != '' 
+        AND private_message = 1
+      ORDER BY created_at DESC
+    `);
+    res.json({ messages: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Registrar confirmação de presença (RSVP)
 app.post('/api/rsvp', async (req, res) => {
-  const { guestListId, name, phone, attending, message, has_plus_one, plus_one_name } = req.body;
+  const { guestListId, name, phone, attending, message, private_message, has_plus_one, plus_one_name } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: 'O nome é obrigatório.' });
@@ -65,6 +97,7 @@ app.post('/api/rsvp', async (req, res) => {
     const rsvpStatus = isAttending ? 'confirmou' : 'negou';
     const hasPlusOneVal = has_plus_one ? 1 : 0;
     const plusOneNameVal = has_plus_one && plus_one_name ? plus_one_name.trim() : null;
+    const privateMessageVal = private_message ? 1 : 0;
 
     // Localizar convidado na lista
     let targetGuest = null;
@@ -137,13 +170,14 @@ app.post('/api/rsvp', async (req, res) => {
 
     // Salva o registro em guests
     const result = await db.execute({
-      sql: `INSERT INTO guests (name, phone, attending, message, has_plus_one, plus_one_name, group_name) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO guests (name, phone, attending, message, private_message, has_plus_one, plus_one_name, group_name) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         name.trim(),
         phone || null,
         isAttending,
         message || null,
+        privateMessageVal,
         hasPlusOneVal,
         plusOneNameVal,
         groupName
