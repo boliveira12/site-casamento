@@ -2,18 +2,74 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Waves,
-  Sun,
   MapPin,
   Calendar,
   Shirt,
   Heart,
   Gift,
-  Sparkles
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import heroCoupleImg from '../assets/foto_home_nova.jfif';
+import foto1 from '../assets/foto1.jpeg';
+import foto2 from '../assets/foto2.jpeg';
+import foto3 from '../assets/foto3.jpeg';
+import foto4 from '../assets/foto4.jpeg';
+import foto5 from '../assets/foto5.jpeg';
+import foto6 from '../assets/foto6.jpeg';
+import foto7 from '../assets/foto7.jpeg';
+
+const photos = [
+  { src: foto1, alt: 'Luiz Gustavo e Luíza 1' },
+  { src: foto2, alt: 'Luiz Gustavo e Luíza 2' },
+  { src: foto3, alt: 'Luiz Gustavo e Luíza 3' },
+  { src: foto4, alt: 'Luiz Gustavo e Luíza 4' },
+  { src: foto5, alt: 'Luiz Gustavo e Luíza 5' },
+  { src: foto6, alt: 'Luiz Gustavo e Luíza 6' },
+  { src: foto7, alt: 'Luiz Gustavo e Luíza 7' },
+];
 
 export function Home() {
   const [apiStatus, setApiStatus] = useState({ loading: true, online: false });
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % photos.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + photos.length) % photos.length);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % photos.length);
+  };
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) {
+      nextSlide();
+    } else if (distance < -50) {
+      prevSlide();
+    }
+  };
 
   useEffect(() => {
     fetch('/api/health')
@@ -98,41 +154,116 @@ export function Home() {
 
       </section>
 
-      {/* SEÇÃO DESTACADA: FOTO DO CASAL E MENSAGEM */}
-      <section className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-white/90 rounded-3xl p-6 md:p-10 border border-cyan-100/90 shadow-xl backdrop-blur-md grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+      {/* SEÇÃO CARROSSEL DE FOTOS (ESTILO COVERFLOW 3D NATIVO) */}
+      {/* SEÇÃO CARROSSEL DE FOTOS (EFEITO PROFUNDIDADE HORIZONTAL AMPLA) */}
+      <section className="w-full max-w-7xl mx-auto px-2 sm:px-6 py-6 md:py-8">
+        <div
+          className="relative bg-transparent w-full overflow-hidden group"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Palco do Carrossel com Profundidade Ampla */}
+          <div className="relative w-full h-[440px] sm:h-[520px] md:h-[600px] flex items-center justify-center overflow-hidden">
+            {photos.map((photo, idx) => {
+              // Cálculo de deslocamento circular
+              let diff = idx - currentSlide;
+              if (diff > photos.length / 2) diff -= photos.length;
+              if (diff < -photos.length / 2) diff += photos.length;
 
-          {/* Foto do Casal em Moldura Especial */}
-          <div className="md:col-span-5 flex justify-center">
-            <div className="relative p-2 bg-gradient-to-tr from-amber-100 via-teal-100 to-cyan-100 rounded-3xl shadow-xl transform hover:rotate-1 transition-transform duration-500">
-              <img
-                src={heroCoupleImg}
-                alt="Luiz Gustavo e Luíza"
-                className="w-full h-72 md:h-80 object-cover rounded-2xl shadow-md"
-              />
-            </div>
+              const absDiff = Math.abs(diff);
+              const dir = diff < 0 ? -1 : 1;
+
+              // Configuração simétrica de camadas por distância relativa
+              let transformStyle = '';
+              let layerClasses = '';
+
+              if (absDiff === 0) {
+                // Foto Central Ativa (100% destaque)
+                transformStyle = 'translate(-50%, -50%) scale(1.04)';
+                layerClasses = 'opacity-100 z-40 pointer-events-auto cursor-default ring-2 ring-white/95 shadow-2xl shadow-slate-900/20';
+              } else if (absDiff === 1) {
+                // Camada 1: Fotos Próximas (faded leve)
+                transformStyle = `translate(calc(-50% + ${dir * 64}%), -50%) scale(0.85)`;
+                layerClasses = 'opacity-50 sm:opacity-60 z-30 pointer-events-auto cursor-pointer hover:opacity-75 shadow-lg';
+              } else if (absDiff === 2) {
+                // Camada 2: Fotos Seguintes (mais transparentes, visíveis a partir de telas pequenas)
+                transformStyle = `translate(calc(-50% + ${dir * 122}%), -50%) scale(0.70)`;
+                layerClasses = 'opacity-0 sm:opacity-25 md:opacity-30 z-20 pointer-events-none sm:pointer-events-auto sm:cursor-pointer sm:hover:opacity-50 shadow-md';
+              } else {
+                // Camada 3: Fotos Mais Distantes (quase imperceptíveis nas bordas da tela)
+                transformStyle = `translate(calc(-50% + ${dir * 175}%), -50%) scale(0.58)`;
+                layerClasses = 'opacity-0 md:opacity-10 lg:opacity-14 z-10 pointer-events-none md:pointer-events-auto md:cursor-pointer md:hover:opacity-30 shadow-xs';
+              }
+
+              return (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    if (diff !== 0) setCurrentSlide(idx);
+                  }}
+                  style={{
+                    transform: transformStyle
+                  }}
+                  className={`absolute top-1/2 left-1/2 w-[70%] sm:w-[50%] md:w-[36%] lg:w-[28%] max-w-[380px] aspect-[3/4] rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-500 ease-out select-none ${layerClasses}`}
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    draggable={false}
+                    className="w-full h-full object-cover object-center select-none"
+                  />
+                  {absDiff === 0 && (
+                    <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl md:rounded-3xl pointer-events-none" />
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Botão Anterior Discreto e Flutuante */}
+            <button
+              type="button"
+              onClick={prevSlide}
+              aria-label="Foto anterior"
+              className="absolute left-1 sm:left-3 md:left-6 top-1/2 -translate-y-1/2 z-50 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/70 hover:bg-white/95 text-slate-700 hover:text-slate-950 flex items-center justify-center border border-white/50 backdrop-blur-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer opacity-70 hover:opacity-100"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+
+            {/* Botão Próximo Discreto e Flutuante */}
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Próxima foto"
+              className="absolute right-1 sm:right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/70 hover:bg-white/95 text-slate-700 hover:text-slate-950 flex items-center justify-center border border-white/50 backdrop-blur-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer opacity-70 hover:opacity-100"
+            >
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
           </div>
 
-          {/* Mensagem do Casal */}
-          <div className="md:col-span-7 space-y-4 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold uppercase tracking-widest shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Nossa História</span>
+          {/* Barra Inferior: Indicadores e Contador */}
+          <div className="mt-3 flex flex-col items-center gap-1.5">
+            <div className="flex justify-center items-center gap-1.5">
+              {photos.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Ir para foto ${idx + 1}`}
+                  className={`transition-all duration-300 rounded-full cursor-pointer ${idx === currentSlide
+                    ? 'w-6 h-1.5 bg-teal-600/90'
+                    : 'w-1.5 h-1.5 bg-slate-300/80 hover:bg-slate-400'
+                    }`}
+                />
+              ))}
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 leading-tight">
-              O Nosso Sim À Beira-Mar
-            </h2>
-
-            <p className="text-slate-600 font-serif italic text-base md:text-lg leading-relaxed">
-              "O amor é como o mar: grandioso, sereno e cheio de luz. Esperamos você para celebrar esse momento inesquecível ao nosso lado."
-            </p>
-
-            <p className="text-teal-700 font-semibold text-sm tracking-wide">
-              — Luiz Gustavo & Luíza
-            </p>
+            <span className="text-[11px] font-mono tracking-widest text-slate-400/80 uppercase">
+              {currentSlide + 1} / {photos.length}
+            </span>
           </div>
-
         </div>
       </section>
 
