@@ -425,9 +425,9 @@ export function GuestList() {
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-sm bg-white font-medium"
                 >
-                  <option value="ainda nao respondeu">ainda nao respondeu</option>
-                  <option value="confirmou">confirmou</option>
-                  <option value="negou">negou</option>
+                  <option value="ainda nao respondeu">Pendente</option>
+                  <option value="confirmou">Confirmado</option>
+                  <option value="negou">Negado</option>
                 </select>
               </div>
 
