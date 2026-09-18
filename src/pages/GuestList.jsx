@@ -223,19 +223,19 @@ export function GuestList() {
       filterStatus === 'all'
         ? true
         : filterStatus === 'invite_sent'
-        ? Number(guest.invite_sent) === 1
-        : filterStatus === 'invite_pending'
-        ? Number(guest.invite_sent) === 0
-        : guest.status === filterStatus;
+          ? Number(guest.invite_sent) === 1
+          : filterStatus === 'invite_pending'
+            ? Number(guest.invite_sent) === 0
+            : guest.status === filterStatus;
 
     const matchesGroup =
       filterGroup === 'all'
         ? true
         : filterGroup === '__with_group'
-        ? Boolean(guest.group_name)
-        : filterGroup === '__without_group'
-        ? !guest.group_name
-        : guest.group_name === filterGroup;
+          ? Boolean(guest.group_name)
+          : filterGroup === '__without_group'
+            ? !guest.group_name
+            : guest.group_name === filterGroup;
 
     return matchesSearch && matchesStatus && matchesGroup;
   });
@@ -245,14 +245,14 @@ export function GuestList() {
   const groupsCount = existingGroups.length;
   const guestsWithGroupCount = guests.filter((g) => Boolean(g.group_name)).length;
   const invitesSentCount = guests.filter((g) => Number(g.invite_sent) === 1).length;
-  const confirmedCount = guests.filter((g) => g.status === 'confirmou' || g.status === 'Confirmado').length;
-  const declinedCount = guests.filter((g) => g.status === 'negou' || g.status === 'Negado').length;
-  const pendingCount = guests.filter((g) => g.status === 'ainda nao respondeu' || g.status === 'Sem Resposta').length;
+  const confirmedCount = guests.filter((g) => g.status === 'Confirmado' || g.status === 'Confirmado').length;
+  const declinedCount = guests.filter((g) => g.status === 'Negado' || g.status === 'Negado').length;
+  const pendingCount = guests.filter((g) => g.status === 'Pendente' || g.status === 'Sem Resposta').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50/80 via-cyan-50/30 to-amber-50/40 py-12 px-4 sm:px-6 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* Cabeçalho */}
         <div className="text-center space-y-4 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold uppercase tracking-widest shadow-xs">
@@ -322,11 +322,10 @@ export function GuestList() {
 
           {feedback.text && (
             <div
-              className={`mb-4 p-3 rounded-xl text-xs font-semibold ${
-                feedback.type === 'success'
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  : 'bg-rose-50 text-rose-800 border border-rose-200'
-              }`}
+              className={`mb-4 p-3 rounded-xl text-xs font-semibold ${feedback.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'bg-rose-50 text-rose-800 border border-rose-200'
+                }`}
             >
               {feedback.text}
             </div>
@@ -341,7 +340,7 @@ export function GuestList() {
 
           <form onSubmit={handleAddGuest} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              
+
               {/* Nome do Convidado */}
               <div className="md:col-span-4 space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
@@ -415,7 +414,7 @@ export function GuestList() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center pt-2">
-              
+
               {/* Dropdown Resposta */}
               <div className="md:col-span-4 space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
@@ -463,10 +462,10 @@ export function GuestList() {
 
         {/* Tabela de Convidados & Barra de Pesquisa/Filtro */}
         <div className="bg-white/90 rounded-3xl border border-cyan-100/90 shadow-xl backdrop-blur-md overflow-hidden">
-          
+
           {/* Barra Superior de Busca e Filtro */}
           <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
-            
+
             {/* Input de Busca */}
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -481,7 +480,7 @@ export function GuestList() {
 
             {/* Filtros */}
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              
+
               {/* Filtro por Família/Grupo */}
               <select
                 value={filterGroup}
@@ -504,41 +503,37 @@ export function GuestList() {
               {/* Botões de Filtro de Status */}
               <button
                 onClick={() => setFilterStatus('all')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${
-                  filterStatus === 'all'
-                    ? 'bg-slate-800 text-white border-slate-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                }`}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'all'
+                  ? 'bg-slate-800 text-white border-slate-800'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
               >
                 Todos ({totalCount})
               </button>
               <button
                 onClick={() => setFilterStatus('ainda nao respondeu')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${
-                  filterStatus === 'ainda nao respondeu'
-                    ? 'bg-amber-500 text-white border-amber-500'
-                    : 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50'
-                }`}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'ainda nao respondeu'
+                  ? 'bg-amber-500 text-white border-amber-500'
+                  : 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50'
+                  }`}
               >
                 Pendente ({pendingCount})
               </button>
               <button
                 onClick={() => setFilterStatus('confirmou')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${
-                  filterStatus === 'confirmou'
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
-                }`}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'confirmou'
+                  ? 'bg-emerald-600 text-white border-emerald-600'
+                  : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+                  }`}
               >
                 Confirmou ({confirmedCount})
               </button>
               <button
                 onClick={() => setFilterStatus('negou')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${
-                  filterStatus === 'negou'
-                    ? 'bg-rose-600 text-white border-rose-600'
-                    : 'bg-white text-rose-700 border-rose-200 hover:bg-rose-50'
-                }`}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'negou'
+                  ? 'bg-rose-600 text-white border-rose-600'
+                  : 'bg-white text-rose-700 border-rose-200 hover:bg-rose-50'
+                  }`}
               >
                 Negou ({declinedCount})
               </button>
@@ -666,13 +661,12 @@ export function GuestList() {
                                   ? `Ao alterar, confirma ou nega toda a família (${guest.group_name})`
                                   : 'Alterar status'
                               }
-                              className={`w-full max-w-[200px] px-3 py-1.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/40 cursor-pointer ${
-                                guest.status === 'confirmou' || guest.status === 'Confirmado'
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                  : guest.status === 'negou' || guest.status === 'Negado'
+                              className={`w-full max-w-[200px] px-3 py-1.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/40 cursor-pointer ${guest.status === 'confirmou' || guest.status === 'Confirmado'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                : guest.status === 'negou' || guest.status === 'Negado'
                                   ? 'bg-rose-50 text-rose-800 border-rose-300'
                                   : 'bg-amber-50 text-amber-800 border-amber-300'
-                              }`}
+                                }`}
                             >
                               <option value="ainda nao respondeu">ainda nao respondeu</option>
                               <option value="confirmou">confirmou</option>

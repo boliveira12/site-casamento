@@ -43,6 +43,27 @@ export function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  // Countdown state
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const target = new Date('2026-12-06T14:00:00-03:00');
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setTimeLeft({ days, hours, minutes, seconds });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (isPaused) return;
@@ -276,6 +297,31 @@ export function Home() {
               {currentSlide + 1} / {photos.length}
             </span>
           </div>
+        </div>
+      </section>
+
+      {/* Countdown Timer */}
+      <section className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+        <div className="flex justify-center gap-3 sm:gap-4">
+          {[
+            { value: timeLeft.days,    label: 'Dias' },
+            { value: timeLeft.hours,   label: 'Horas' },
+            { value: timeLeft.minutes, label: 'Minutos' },
+            { value: timeLeft.seconds, label: 'Segundos' },
+          ].map(({ value, label }) => (
+            <div
+              key={label}
+              className="flex-1 flex flex-col items-center justify-center rounded-xl py-4 px-2"
+              style={{ backgroundColor: '#f5efe6' }}
+            >
+              <span className="text-3xl sm:text-4xl font-serif font-bold text-slate-800 leading-none">
+                {String(value).padStart(2, '0')}
+              </span>
+              <span className="text-[10px] sm:text-xs font-mono tracking-widest text-slate-500 uppercase mt-1.5">
+                {label}
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 
