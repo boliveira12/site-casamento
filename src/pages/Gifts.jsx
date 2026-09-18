@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import {
-  ShoppingBag,
-  Plus,
-  Check,
-  Sparkles,
-  Waves,
-  Heart,
-  Search,
-  Gift,
-  ExternalLink
-} from 'lucide-react';
+import { ShoppingBag, Plus, Check, Gift, ExternalLink } from 'lucide-react';
 
 const mockGifts = [
   {
     id: 1,
     title: 'Passeio de Balão na Capadócia',
     price: 'R$ 500,00',
-    category: 'Lua de Mel',
     description: 'Um passeio inesquecível para celebrar nosso amor em um dos lugares mais românticos do mundo.',
     image: 'https://www.felizturismo.com/images/balloon-hero.webp'
   },
@@ -25,7 +14,6 @@ const mockGifts = [
     id: 2,
     title: 'Ingressos Para o Louvre',
     price: 'R$ 200,00',
-    category: 'Lua de Mel',
     description: 'Visitar o museu mais famoso do mundo.',
     image: 'https://res.klook.com/images/w_1200,h_630,c_fill,q_65/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/nla50wcnftdwisfbtrl2/MuseudoLouvrecomvisitaguiada%C3%A0MonaLisa-Klook.jpg'
   },
@@ -33,7 +21,6 @@ const mockGifts = [
     id: 3,
     title: 'Café da Manhã em Veneza',
     price: 'R$ 150,00',
-    category: 'Lua de Mel',
     description: 'Um café da manhã delicioso para começar o dia.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYxy6WqrPJGEQmoT11TYI_yzMp2WJdrpPqnpiEXfvMuQ&s=10'
   },
@@ -41,7 +28,6 @@ const mockGifts = [
     id: 4,
     title: 'Passeio nos Templos de Kyoto',
     price: 'R$ 400,00',
-    category: 'Lua de Mel',
     description: 'Explorar a beleza e a espiritualidade dos templos de Kyoto.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW79wifdUx2f5E3TlEJzkxIUlqJ_1ZXU3o4Qtmw-lZXA&s=10'
   },
@@ -49,7 +35,6 @@ const mockGifts = [
     id: 5,
     title: 'Um Gelato em Florença',
     price: 'R$ 50,00',
-    category: 'Lua de Mel',
     description: 'Um gelato para adoçar a vida.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8aRXrZW1cKtOEGAWKOtoYMAwoYEet0_73xIcEEgTafA&s=10'
   },
@@ -57,7 +42,6 @@ const mockGifts = [
     id: 6,
     title: 'Mergulho com os Peixes em Búzios',
     price: 'R$ 350,00',
-    category: 'Lua de Mel',
     description: 'Um dia incrível navegando pelas águas cristalinas.',
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'
   },
@@ -65,7 +49,6 @@ const mockGifts = [
     id: 7,
     title: 'Aluguel de Bicicletas em Berlim',
     price: 'R$ 100,00',
-    category: 'Lua de Mel',
     description: 'Um passeio de bicicleta pela cidade.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZT2BuOpbrRI01kVoh8aTA3ztu2S5k6j9KnMhPbNrjVA&s=10'
   },
@@ -73,7 +56,6 @@ const mockGifts = [
     id: 8,
     title: 'Jantar Romântico nas Bahamas',
     price: 'R$ 250,00',
-    category: 'Lua de Mel',
     description: 'Um jantar romântico ao pôr do sol, com vista para o mar.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBcfB_6H2vvsqSFmd4en7rtH-6r6m_CX27bbSNL_vKYQ&s=10'
   },
@@ -81,25 +63,21 @@ const mockGifts = [
     id: 9,
     title: 'Passeio de Safari na Africa do Sul',
     price: 'R$ 300,00',
-    category: 'Lua de Mel',
     description: 'Um dia incrível de safári, com vista para os animais.',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7-VWlLBCyxHYfQefP-wIvKhd1qw138RB4iBovns87fQ&s=10'
   }
 ];
 
-const categories = ['Todos', 'Cozinha', 'Eletro', 'Cama & Banho', 'Praia & Lazer', 'Lua de Mel'];
 
 export function Gifts() {
   const { addToCart, cart, totalItems, setIsCartOpen } = useCart();
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [addedIds, setAddedIds] = useState([]);
 
   const filteredGifts = mockGifts.filter((gift) => {
-    const matchesCategory = selectedCategory === 'Todos' || gift.category === selectedCategory;
     const matchesSearch = gift.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       gift.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesSearch;
   });
 
   const handleAdd = (gift) => {
@@ -116,10 +94,7 @@ export function Gifts() {
 
         {/* Banner de Boas-Vindas */}
         <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-semibold uppercase tracking-widest shadow-2xs">
-            <Waves className="w-4 h-4 text-teal-600" />
-            <span>Lista de Presentes Praiana</span>
-          </div>
+
 
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 leading-tight">
             Nossa Lista de Presentes
@@ -146,36 +121,7 @@ export function Gifts() {
           )}
         </div>
 
-        {/* Filtros e Busca */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white/80 p-4 rounded-2xl border border-cyan-100/70 shadow-xs backdrop-blur-md">
-          {/* Category Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${selectedCategory === cat
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
 
-          {/* Search bar */}
-          <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Buscar presente..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition"
-            />
-          </div>
-        </div>
 
         {/* Grid de Presentes com Fotos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -195,9 +141,6 @@ export function Gifts() {
                     alt={gift.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-teal-800 uppercase tracking-widest shadow-xs">
-                    {gift.category}
-                  </div>
 
                   {inCartItem && (
                     <div className="absolute top-3 right-3 bg-teal-600 text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md flex items-center gap-1">
@@ -220,7 +163,7 @@ export function Gifts() {
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-semibold text-slate-400 block">
-                        Valor da Cota / Item
+                        Valor Simbólico
                       </span>
                       <span className="text-2xl font-bold text-slate-900 font-serif">
                         {gift.price}
@@ -251,21 +194,9 @@ export function Gifts() {
           })}
         </div>
 
-        {filteredGifts.length === 0 && (
-          <div className="text-center py-16 bg-white/60 rounded-3xl border border-cyan-100">
-            <Gift className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-slate-700">Nenhum presente encontrado</h3>
-            <p className="text-xs text-slate-500 mt-1">Tente pesquisar com outro termo ou alterar a categoria.</p>
-          </div>
-        )}
-
         {/* Sessão de Outras Listas de Presentes (Lojas Externas) */}
         <div className="mt-16 pt-12 border-t border-cyan-100/90">
           <div className="text-center space-y-3 max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-semibold uppercase tracking-widest shadow-2xs">
-              <Gift className="w-4 h-4 text-amber-600" />
-              <span>Outras Opções de Presentes</span>
-            </div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 leading-tight">
               Prefere presentear de outra forma?
             </h2>
