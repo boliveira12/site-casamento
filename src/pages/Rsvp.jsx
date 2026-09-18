@@ -45,11 +45,41 @@ export function Rsvp() {
     loadGuestList();
   }, []);
 
+  const normalizeStatus = (str) =>
+    str ? str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+
+  const isPending = (statusStr) => {
+    if (!statusStr) return true;
+    const s = normalizeStatus(statusStr);
+    return s === 'pendente' || s === 'ainda nao respondeu' || s === 'sem resposta';
+  };
+
+  const isGuestAlreadyAnswered = (g) => {
+    if (!g) return false;
+    if (!isPending(g.status)) {
+      return true;
+    }
+    if (g.group_name && g.group_name.trim()) {
+      const groupNameNorm = g.group_name.trim().toLowerCase();
+      const hasAnsweredMember = guestListOptions.some((m) => {
+        if (!m.group_name) return false;
+        if (m.group_name.trim().toLowerCase() !== groupNameNorm) return false;
+        return !isPending(m.status);
+      });
+      if (hasAnsweredMember) return true;
+    }
+    return false;
+  };
+
+  const isSelectedGuestAnswered = isGuestAlreadyAnswered(selectedGuest);
+
   const selectGuest = (g) => {
     setSelectedGuest(g);
     setNameInput(g.name);
     setPhoneDigitsInput('');
     setShowSuggestions(false);
+    setStatus({ loading: false, success: null, error: null });
+
     setFormData((prev) => ({
       ...prev,
       guestListId: g.id,
@@ -97,6 +127,10 @@ export function Rsvp() {
 
     if (!selectedGuest || !formData.name) {
       setStatus({ loading: false, success: null, error: 'Por favor, busque e selecione seu nome na lista.' });
+      return;
+    }
+
+    if (isSelectedGuestAnswered) {
       return;
     }
 
@@ -181,7 +215,7 @@ export function Rsvp() {
             </div>
           )}
 
-          {status.error && (
+          {status.error && status.error !== 'Esse convite já foi respondido por você ou alguém da sua família.' && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-50 text-rose-900 border border-rose-200 text-sm flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -283,10 +317,16 @@ export function Rsvp() {
 
               {/* Indicator de Seleção */}
               {selectedGuest ? (
-                <p className="text-[11px] text-emerald-700 font-bold mt-1.5 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  Convidado localizado: <strong>{selectedGuest.name}</strong>
-                </p>
+                isSelectedGuestAnswered ? (
+                  <p className="text-xs text-rose-600 font-medium mt-1.5">
+                    Esse convite já foi respondido por você ou alguém da sua família.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-emerald-700 font-bold mt-1.5 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Convidado localizado: <strong>{selectedGuest.name}</strong>
+                  </p>
+                )
               ) : (
                 <p className="text-[11px] text-slate-400 font-normal mt-1.5">
                   Comece a digitar para encontrar seu nome na lista.
@@ -328,7 +368,7 @@ export function Rsvp() {
             )}
 
             {/* ABA DE CONFIRMAÇÃO DOS 4 ÚLTIMOS DÍGITOS DO TELEFONE */}
-            {selectedGuest && (
+            {selectedGuest && !isSelectedGuestAnswered && (
               <div className={`p-5 rounded-2xl border transition-all ${isPhoneConfirmed
                 ? 'bg-emerald-50/70 border-emerald-200'
                 : phoneDigitsInput.length === 4 && !isPhoneConfirmed
@@ -346,60 +386,60 @@ export function Rsvp() {
                   </h3>
                 </div>
 
-                {hasRegisteredPhone ? (
-                  <div className="space-y-3">
-                    <p className="text-xs text-slate-600">
-                      Para confirmar a sua identidade como <strong>{selectedGuest.name}</strong>, digite os <strong>4 últimos dígitos</strong> do número de telefone cadastrado:
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="text"
-                        maxLength={4}
-                        placeholder="Ex: 5432"
-                        value={phoneDigitsInput}
-                        onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
-                        className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
-                          ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
-                          : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                            ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
-                            : 'border-teal-300 focus:ring-teal-500 text-slate-800'
-                          }`}
-                      />
+                  {hasRegisteredPhone ? (
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-600">
+                        Para confirmar a sua identidade como <strong>{selectedGuest.name}</strong>, digite os <strong>4 últimos dígitos</strong> do número de telefone cadastrado:
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="Ex: 5432"
+                          value={phoneDigitsInput}
+                          onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
+                          className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
+                            ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
+                            : phoneDigitsInput.length === 4 && !isPhoneConfirmed
+                              ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
+                              : 'border-teal-300 focus:ring-teal-500 text-slate-800'
+                            }`}
+                        />
 
-                      <div className="text-xs font-semibold">
-                        {isPhoneConfirmed ? (
-                          <span className="text-emerald-700 flex items-center gap-1 font-bold">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                            Dígitos validados com sucesso!
-                          </span>
-                        ) : phoneDigitsInput.length === 4 ? (
-                          <span className="text-rose-600 flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4 text-rose-600" />
-                            Dígitos incorretos. Verifique e tente novamente.
-                          </span>
-                        ) : (
-                          <span className="text-slate-500">
-                            Digite os 4 dígitos e confirme sua identidade.
-                          </span>
-                        )}
+                        <div className="text-xs font-semibold">
+                          {isPhoneConfirmed ? (
+                            <span className="text-emerald-700 flex items-center gap-1 font-bold">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              Dígitos validados com sucesso!
+                            </span>
+                          ) : phoneDigitsInput.length === 4 ? (
+                            <span className="text-rose-600 flex items-center gap-1">
+                              <AlertCircle className="w-4 h-4 text-rose-600" />
+                              Dígitos incorretos. Verifique e tente novamente.
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">
+                              Digite os 4 dígitos e confirme sua identidade.
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-xs text-slate-600">
-                      Não há número de telefone registrado para <strong>{selectedGuest.name}</strong> na lista. Por favor, informe seu telefone completo abaixo para confirmar a presença:
-                    </p>
-                    <input
-                      type="text"
-                      placeholder="(71) 99999-8888"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-teal-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-xs text-slate-600">
+                        Não há número de telefone registrado para <strong>{selectedGuest.name}</strong> na lista. Por favor, informe seu telefone completo abaixo para confirmar a presença:
+                      </p>
+                      <input
+                        type="text"
+                        placeholder="(71) 99999-8888"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-teal-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  )}
+                </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -425,8 +465,8 @@ export function Rsvp() {
                   Você irá ao evento?
                 </label>
                 <select
-                  disabled={!isPhoneConfirmed}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition text-sm text-slate-800 disabled:opacity-50 cursor-pointer"
+                  disabled={!isPhoneConfirmed || isSelectedGuestAnswered}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition text-sm text-slate-800 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                   value={formData.attending ? 'yes' : 'no'}
                   onChange={(e) => setFormData({ ...formData, attending: e.target.value === 'yes' })}
                 >
@@ -442,9 +482,9 @@ export function Rsvp() {
               </label>
               <textarea
                 rows={3}
-                disabled={!isPhoneConfirmed}
+                disabled={!isPhoneConfirmed || isSelectedGuestAnswered}
                 placeholder="Deixe uma mensagem carinhosa para os noivos..."
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition text-sm text-slate-800 resize-none disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition text-sm text-slate-800 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               />
@@ -452,10 +492,10 @@ export function Rsvp() {
 
             <button
               type="submit"
-              disabled={status.loading || !isPhoneConfirmed}
-              className="w-full py-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-2xl shadow-lg shadow-teal-500/25 transition-all transform hover:scale-[1.01] flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
+              disabled={status.loading || !isPhoneConfirmed || isSelectedGuestAnswered}
+              className="w-full py-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-2xl shadow-lg shadow-teal-500/25 transition-all transform hover:scale-[1.01] flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
-              {isPhoneConfirmed ? (
+              {isPhoneConfirmed && !isSelectedGuestAnswered ? (
                 <>
                   <Send className="w-4 h-4" />
                   <span>{status.loading ? 'Confirmando...' : 'Enviar Confirmação de Presença'}</span>

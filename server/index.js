@@ -88,6 +88,50 @@ app.post('/api/rsvp', async (req, res) => {
       }
     }
 
+    const normalizeStatus = (str) =>
+      str ? str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+
+    const isPending = (statusStr) => {
+      if (!statusStr) return true;
+      const s = normalizeStatus(statusStr);
+      return s === 'pendente' || s === 'ainda nao respondeu' || s === 'sem resposta';
+    };
+
+    // Se status != "pendente", responda exato: "Esse convite já foi respondido por você ou alguém da sua família."
+    if (targetGuest) {
+      if (!isPending(targetGuest.status)) {
+        return res.status(400).json({
+          error: 'Esse convite já foi respondido por você ou alguém da sua família.'
+        });
+      }
+
+      if (targetGuest.group_name && targetGuest.group_name.trim()) {
+        const groupRes = await db.execute({
+          sql: `SELECT status FROM guest_list WHERE LOWER(TRIM(group_name)) = LOWER(TRIM(?))`,
+          args: [targetGuest.group_name.trim()]
+        });
+
+        const hasAnsweredInGroup = groupRes.rows.some((row) => !isPending(row.status));
+
+        if (hasAnsweredInGroup) {
+          return res.status(400).json({
+            error: 'Esse convite já foi respondido por você ou alguém da sua família.'
+          });
+        }
+      }
+    } else {
+      // Caso não esteja cadastrado na lista prévia, verifica se já respondeu em guests
+      const alreadyInGuests = await db.execute({
+        sql: 'SELECT id FROM guests WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1',
+        args: [name.trim()]
+      });
+      if (alreadyInGuests.rows.length > 0) {
+        return res.status(400).json({
+          error: 'Esse convite já foi respondido por você ou alguém da sua família.'
+        });
+      }
+    }
+
     const groupName = targetGuest?.group_name ? targetGuest.group_name.trim() : null;
     let groupMembers = [];
 
