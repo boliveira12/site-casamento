@@ -18,6 +18,10 @@ import foto4 from '../assets/foto4.jpeg';
 import foto5 from '../assets/foto5.jpeg';
 import foto6 from '../assets/foto6.jpeg';
 import foto7 from '../assets/foto7.jpeg';
+import foto8 from '../assets/foto8.jpeg';
+import foto9 from '../assets/foto9.jpeg';
+import foto10 from '../assets/foto10.jpeg';
+import foto11 from '../assets/foto11.jpeg';
 
 const photos = [
   { src: foto1, alt: 'Luiz Gustavo e Luíza 1' },
@@ -27,6 +31,10 @@ const photos = [
   { src: foto5, alt: 'Luiz Gustavo e Luíza 5' },
   { src: foto6, alt: 'Luiz Gustavo e Luíza 6' },
   { src: foto7, alt: 'Luiz Gustavo e Luíza 7' },
+  { src: foto8, alt: 'Luiz Gustavo e Luíza 8' },
+  { src: foto9, alt: 'Luiz Gustavo e Luíza 9' },
+  { src: foto10, alt: 'Luiz Gustavo e Luíza 10' },
+  { src: foto11, alt: 'Luiz Gustavo e Luíza 11' },
 ];
 
 export function Home() {
@@ -192,10 +200,14 @@ export function Home() {
                 // Camada 2: Fotos Seguintes (mais transparentes, visíveis a partir de telas pequenas)
                 transformStyle = `translate(calc(-50% + ${dir * 122}%), -50%) scale(0.70)`;
                 layerClasses = 'opacity-0 sm:opacity-25 md:opacity-30 z-20 pointer-events-none sm:pointer-events-auto sm:cursor-pointer sm:hover:opacity-50 shadow-md';
-              } else {
+              } else if (absDiff === 3) {
                 // Camada 3: Fotos Mais Distantes (quase imperceptíveis nas bordas da tela)
                 transformStyle = `translate(calc(-50% + ${dir * 175}%), -50%) scale(0.58)`;
                 layerClasses = 'opacity-0 md:opacity-10 lg:opacity-14 z-10 pointer-events-none md:pointer-events-auto md:cursor-pointer md:hover:opacity-30 shadow-xs';
+              } else {
+                // Fotos além da camada 3: escondidas fora do palco
+                transformStyle = `translate(calc(-50% + ${dir * 220}%), -50%) scale(0.50)`;
+                layerClasses = 'opacity-0 z-0 pointer-events-none';
               }
 
               return (
