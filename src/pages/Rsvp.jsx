@@ -86,7 +86,7 @@ export function Rsvp() {
       guestListId: g.id,
       name: g.name,
       phone: g.phone || prev.phone,
-      attending: g.status === 'negou' ? false : true,
+      attending: g.status === 'Negado' || g.status === 'negou' ? false : true,
     }));
   };
 

@@ -31,7 +31,7 @@ export function GuestList() {
   const [groupName, setGroupName] = useState('');
   const [keepGroup, setKeepGroup] = useState(true);
   const [inviteSent, setInviteSent] = useState(false);
-  const [status, setStatus] = useState('ainda nao respondeu');
+  const [status, setStatus] = useState('Pendente');
 
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: null, text: '' });
@@ -95,7 +95,7 @@ export function GuestList() {
         setName('');
         setPhone('');
         setInviteSent(false);
-        setStatus('ainda nao respondeu');
+        setStatus('Pendente');
         if (!keepGroup) {
           setGroupName('');
         }
@@ -184,10 +184,8 @@ export function GuestList() {
       name: guest.name || '',
       phone: guest.phone || '',
       invite_sent: Number(guest.invite_sent) === 1,
-      status: guest.status || 'ainda nao respondeu',
-      group_name: guest.group_name || '',
-      has_plus_one: Boolean(guest.has_plus_one),
-      plus_one_name: guest.plus_one_name || ''
+      status: guest.status === 'Confirmado' || guest.status === 'Negado' ? guest.status : 'Pendente',
+      group_name: guest.group_name || ''
     });
   };
 
@@ -202,9 +200,7 @@ export function GuestList() {
         phone: editingGuest.phone.trim(),
         invite_sent: editingGuest.invite_sent,
         status: editingGuest.status,
-        group_name: editingGuest.group_name ? editingGuest.group_name.trim() : null,
-        has_plus_one: editingGuest.has_plus_one,
-        plus_one_name: editingGuest.has_plus_one && editingGuest.plus_one_name ? editingGuest.plus_one_name.trim() : null
+        group_name: editingGuest.group_name ? editingGuest.group_name.trim() : null
       });
       setEditingGuest(null);
     } catch (err) {
@@ -226,7 +222,10 @@ export function GuestList() {
           ? Number(guest.invite_sent) === 1
           : filterStatus === 'invite_pending'
             ? Number(guest.invite_sent) === 0
-            : guest.status === filterStatus;
+            : guest.status === filterStatus ||
+              (filterStatus === 'Confirmado' && guest.status === 'confirmou') ||
+              (filterStatus === 'Negado' && guest.status === 'negou') ||
+              (filterStatus === 'Pendente' && (guest.status === 'ainda nao respondeu' || guest.status === 'Sem Resposta'));
 
     const matchesGroup =
       filterGroup === 'all'
@@ -245,9 +244,9 @@ export function GuestList() {
   const groupsCount = existingGroups.length;
   const guestsWithGroupCount = guests.filter((g) => Boolean(g.group_name)).length;
   const invitesSentCount = guests.filter((g) => Number(g.invite_sent) === 1).length;
-  const confirmedCount = guests.filter((g) => g.status === 'Confirmado' || g.status === 'Confirmado').length;
-  const declinedCount = guests.filter((g) => g.status === 'Negado' || g.status === 'Negado').length;
-  const pendingCount = guests.filter((g) => g.status === 'Pendente' || g.status === 'Sem Resposta').length;
+  const confirmedCount = guests.filter((g) => g.status === 'Confirmado' || g.status === 'confirmou').length;
+  const declinedCount = guests.filter((g) => g.status === 'Negado' || g.status === 'negou').length;
+  const pendingCount = guests.filter((g) => g.status === 'Pendente' || g.status === 'ainda nao respondeu' || g.status === 'Sem Resposta').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50/80 via-cyan-50/30 to-amber-50/40 py-12 px-4 sm:px-6 font-sans">
@@ -292,11 +291,11 @@ export function GuestList() {
             <span className="text-2xl font-serif font-bold text-teal-700">{invitesSentCount} / {totalCount}</span>
           </div>
           <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-emerald-100/80 shadow-xs text-center">
-            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider block">Confirmou</span>
+            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider block">Confirmado</span>
             <span className="text-2xl font-serif font-bold text-emerald-700">{confirmedCount}</span>
           </div>
           <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-rose-100/80 shadow-xs text-center">
-            <span className="text-xs font-bold text-rose-600 uppercase tracking-wider block">Negou</span>
+            <span className="text-xs font-bold text-rose-600 uppercase tracking-wider block">Negado</span>
             <span className="text-2xl font-serif font-bold text-rose-700">{declinedCount}</span>
           </div>
           <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-amber-100/80 shadow-xs text-center">
@@ -425,9 +424,9 @@ export function GuestList() {
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-sm bg-white font-medium"
                 >
-                  <option value="ainda nao respondeu">Pendente</option>
-                  <option value="confirmou">Confirmado</option>
-                  <option value="negou">Negado</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Confirmado">Confirmado</option>
+                  <option value="Negado">Negado</option>
                 </select>
               </div>
 
@@ -511,8 +510,8 @@ export function GuestList() {
                 Todos ({totalCount})
               </button>
               <button
-                onClick={() => setFilterStatus('ainda nao respondeu')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'ainda nao respondeu'
+                onClick={() => setFilterStatus('Pendente')}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'Pendente'
                   ? 'bg-amber-500 text-white border-amber-500'
                   : 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50'
                   }`}
@@ -520,8 +519,8 @@ export function GuestList() {
                 Pendente ({pendingCount})
               </button>
               <button
-                onClick={() => setFilterStatus('confirmou')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'confirmou'
+                onClick={() => setFilterStatus('Confirmado')}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'Confirmado'
                   ? 'bg-emerald-600 text-white border-emerald-600'
                   : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
                   }`}
@@ -529,8 +528,8 @@ export function GuestList() {
                 Confirmado ({confirmedCount})
               </button>
               <button
-                onClick={() => setFilterStatus('negou')}
-                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'negou'
+                onClick={() => setFilterStatus('Negado')}
+                className={`px-3 py-1.5 rounded-lg border transition-all ${filterStatus === 'Negado'
                   ? 'bg-rose-600 text-white border-rose-600'
                   : 'bg-white text-rose-700 border-rose-200 hover:bg-rose-50'
                   }`}
@@ -578,14 +577,6 @@ export function GuestList() {
                         {/* Nome */}
                         <td className="py-4 px-4 md:px-6">
                           <div className="font-semibold text-slate-900">{guest.name}</div>
-                          {Boolean(guest.has_plus_one) && guest.plus_one_name && (
-                            <div className="text-[11px] text-teal-700 font-medium flex items-center gap-1 mt-0.5">
-                              <span className="px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 text-[10px] font-bold text-teal-800">
-                                +1
-                              </span>
-                              <span>Acompanhante: {guest.plus_one_name}</span>
-                            </div>
-                          )}
                         </td>
 
                         {/* Grupo / Família */}
@@ -661,16 +652,16 @@ export function GuestList() {
                                   ? `Ao alterar, confirma ou nega toda a família (${guest.group_name})`
                                   : 'Alterar status'
                               }
-                              className={`w-full max-w-[200px] px-3 py-1.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/40 cursor-pointer ${guest.status === 'confirmou' || guest.status === 'Confirmado'
+                              className={`w-full max-w-[200px] px-3 py-1.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/40 cursor-pointer ${guest.status === 'Confirmado' || guest.status === 'confirmou'
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                : guest.status === 'negou' || guest.status === 'Negado'
+                                : guest.status === 'Negado' || guest.status === 'negou'
                                   ? 'bg-rose-50 text-rose-800 border-rose-300'
                                   : 'bg-amber-50 text-amber-800 border-amber-300'
                                 }`}
                             >
-                              <option value="ainda nao respondeu">Pendente</option>
-                              <option value="confirmou">Confirmado</option>
-                              <option value="negou">Negado</option>
+                              <option value="Pendente">Pendente</option>
+                              <option value="Confirmado">Confirmado</option>
+                              <option value="Negado">Negado</option>
                             </select>
                           </div>
                         </td>
@@ -795,42 +786,6 @@ export function GuestList() {
                 </label>
               </div>
 
-              {/* Seção Acompanhante (+1) */}
-              <div className="p-3.5 rounded-xl border border-cyan-100 bg-sky-50/40 space-y-2.5">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={editingGuest.has_plus_one}
-                    onChange={(e) =>
-                      setEditingGuest({
-                        ...editingGuest,
-                        has_plus_one: e.target.checked,
-                        plus_one_name: e.target.checked ? editingGuest.plus_one_name : ''
-                      })
-                    }
-                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 accent-teal-600"
-                  />
-                  <span>Possui Acompanhante (+1)</span>
-                </label>
-
-                {editingGuest.has_plus_one && (
-                  <div className="pl-6 space-y-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                      Nome do Acompanhante
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex: Nome do acompanhante"
-                      value={editingGuest.plus_one_name}
-                      onChange={(e) =>
-                        setEditingGuest({ ...editingGuest, plus_one_name: e.target.value })
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-sm bg-white"
-                    />
-                  </div>
-                )}
-              </div>
-
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1">
                   Resposta do Convidado
@@ -840,9 +795,9 @@ export function GuestList() {
                   onChange={(e) => setEditingGuest({ ...editingGuest, status: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-sm bg-white font-medium"
                 >
-                  <option value="ainda nao respondeu">Pendente</option>
-                  <option value="confirmou">Confirmado</option>
-                  <option value="negou">Negado</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Confirmado">Confirmado</option>
+                  <option value="Negado">Negado</option>
                 </select>
               </div>
 

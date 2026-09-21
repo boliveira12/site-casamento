@@ -16,6 +16,21 @@ app.use(express.json());
 // Inicializa tabelas do banco de dados
 initDb();
 
+// Valores padrão permitidos para status de convidados: "Confirmado", "Negado", "Pendente"
+export const ALLOWED_STATUSES = ['Confirmado', 'Negado', 'Pendente'];
+
+export function normalizeStatus(str) {
+  if (!str) return 'Pendente';
+  const s = String(str).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (s === 'confirmado' || s === 'confirmou' || s === 'sim') return 'Confirmado';
+  if (s === 'negado' || s === 'negou' || s === 'recusado' || s === 'recusou' || s === 'nao') return 'Negado';
+  return 'Pendente';
+}
+
+export function isPending(statusStr) {
+  return normalizeStatus(statusStr) === 'Pendente';
+}
+
 // ── Rota de Login Admin ──────────────────────────────────────────────────────
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
@@ -86,7 +101,7 @@ app.get('/api/messages/private', async (req, res) => {
 
 // Registrar confirmação de presença (RSVP)
 app.post('/api/rsvp', async (req, res) => {
-  const { guestListId, name, phone, attending, message, private_message, has_plus_one, plus_one_name } = req.body;
+  const { guestListId, name, phone, attending, message, private_message } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: 'O nome é obrigatório.' });
@@ -94,9 +109,7 @@ app.post('/api/rsvp', async (req, res) => {
 
   try {
     const isAttending = attending !== undefined ? (attending ? 1 : 0) : 1;
-    const rsvpStatus = isAttending ? 'confirmou' : 'negou';
-    const hasPlusOneVal = has_plus_one ? 1 : 0;
-    const plusOneNameVal = has_plus_one && plus_one_name ? plus_one_name.trim() : null;
+    const rsvpStatus = isAttending ? 'Confirmado' : 'Negado';
     const privateMessageVal = private_message ? 1 : 0;
 
     // Localizar convidado na lista
@@ -120,15 +133,6 @@ app.post('/api/rsvp', async (req, res) => {
         targetGuest = resGuest.rows[0];
       }
     }
-
-    const normalizeStatus = (str) =>
-      str ? str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
-
-    const isPending = (statusStr) => {
-      if (!statusStr) return true;
-      const s = normalizeStatus(statusStr);
-      return s === 'pendente' || s === 'ainda nao respondeu' || s === 'sem resposta';
-    };
 
     // Se status != "pendente", responda exato: "Esse convite já foi respondido por você ou alguém da sua família."
     if (targetGuest) {
@@ -170,39 +174,17 @@ app.post('/api/rsvp', async (req, res) => {
 
     // Salva o registro em guests
     const result = await db.execute({
-      sql: `INSERT INTO guests (name, phone, attending, message, private_message, has_plus_one, plus_one_name, group_name) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO guests (name, phone, attending, message, private_message, group_name) 
+            VALUES (?, ?, ?, ?, ?, ?)`,
       args: [
         name.trim(),
         phone || null,
         isAttending,
         message || null,
         privateMessageVal,
-        hasPlusOneVal,
-        plusOneNameVal,
         groupName
       ]
     });
-
-    // Se o convidado marcou acompanhante (+1), cadastra na lista de convidados caso ainda não exista
-    if (hasPlusOneVal && plusOneNameVal) {
-      const existingPlusOne = await db.execute({
-        sql: 'SELECT id, status, group_name FROM guest_list WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1',
-        args: [plusOneNameVal]
-      });
-
-      if (existingPlusOne.rows.length === 0) {
-        await db.execute({
-          sql: `INSERT INTO guest_list (name, phone, invite_sent, status, group_name) VALUES (?, ?, ?, ?, ?)`,
-          args: [plusOneNameVal, null, 1, rsvpStatus, groupName]
-        });
-      } else {
-        await db.execute({
-          sql: `UPDATE guest_list SET status = ? WHERE id = ?`,
-          args: [rsvpStatus, existingPlusOne.rows[0].id]
-        });
-      }
-    }
 
     // Atualiza a lista de convidados (guest_list)
     if (targetGuest) {
@@ -213,12 +195,6 @@ app.post('/api/rsvp', async (req, res) => {
           args: [rsvpStatus, groupName]
         });
 
-        // Atualiza acompanhante especificamente para o convidado que preencheu
-        await db.execute({
-          sql: `UPDATE guest_list SET has_plus_one = ?, plus_one_name = ? WHERE id = ?`,
-          args: [hasPlusOneVal, plusOneNameVal, targetGuest.id]
-        });
-
         const membersRes = await db.execute({
           sql: `SELECT name FROM guest_list WHERE group_name = ?`,
           args: [groupName]
@@ -226,31 +202,28 @@ app.post('/api/rsvp', async (req, res) => {
         groupMembers = membersRes.rows.map((r) => r.name);
       } else {
         await db.execute({
-          sql: `UPDATE guest_list SET status = ?, has_plus_one = ?, plus_one_name = ? WHERE id = ?`,
-          args: [rsvpStatus, hasPlusOneVal, plusOneNameVal, targetGuest.id]
+          sql: `UPDATE guest_list SET status = ? WHERE id = ?`,
+          args: [rsvpStatus, targetGuest.id]
         });
       }
     } else {
       // Caso não encontrado por ID, tenta por nome
       await db.execute({
-        sql: `UPDATE guest_list SET status = ?, has_plus_one = ?, plus_one_name = ? WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))`,
-        args: [rsvpStatus, hasPlusOneVal, plusOneNameVal, name.trim()]
+        sql: `UPDATE guest_list SET status = ? WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))`,
+        args: [rsvpStatus, name.trim()]
       });
     }
 
     let messageText = 'Confirmação registrada com sucesso!';
     if (groupMembers.length > 1) {
       messageText = `Presença de ${name} e de toda a família (${groupName}) confirmada com sucesso!`;
-    } else if (hasPlusOneVal && plusOneNameVal) {
-      messageText = `Presença de ${name} e do(a) acompanhante ${plusOneNameVal} confirmada com sucesso!`;
     }
 
     res.status(201).json({
       message: messageText,
       guestId: Number(result.lastInsertRowid),
       groupName,
-      groupMembers,
-      plusOneAdded: hasPlusOneVal && plusOneNameVal ? plusOneNameVal : null
+      groupMembers
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -274,7 +247,14 @@ app.get('/api/gifts', async (req, res) => {
 app.get('/api/guest-list', async (req, res) => {
   try {
     const result = await db.execute('SELECT * FROM guest_list ORDER BY id DESC');
-    res.json({ guests: result.rows });
+    const normalizedGuests = result.rows.map((g) => {
+      const { has_plus_one: _h, plus_one_name: _p, ...rest } = g;
+      return {
+        ...rest,
+        status: normalizeStatus(g.status)
+      };
+    });
+    res.json({ guests: normalizedGuests });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -288,8 +268,7 @@ app.post('/api/guest-list', async (req, res) => {
     return res.status(400).json({ error: 'O nome do convidado é obrigatório.' });
   }
 
-  const validStatuses = ['ainda nao respondeu', 'confirmou', 'negou', 'Sem Resposta', 'Confirmado', 'Negado'];
-  const finalStatus = validStatuses.includes(status) ? status : 'ainda nao respondeu';
+  const finalStatus = normalizeStatus(status);
   const finalInviteSent = invite_sent ? 1 : 0;
   const finalGroupName = group_name && group_name.trim() ? group_name.trim() : null;
 
@@ -316,10 +295,10 @@ app.post('/api/guest-list', async (req, res) => {
   }
 });
 
-// Atualizar um convidado (status, checkmark de convite enviado, telefone, nome, grupo, acompanhante)
+// Atualizar um convidado (status, checkmark de convite enviado, telefone, nome, grupo)
 app.put('/api/guest-list/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, phone, invite_sent, status, group_name, has_plus_one, plus_one_name } = req.body;
+  const { name, phone, invite_sent, status, group_name } = req.body;
 
   try {
     const current = await db.execute({
@@ -335,18 +314,14 @@ app.put('/api/guest-list/:id', async (req, res) => {
     const newName = name !== undefined ? name : row.name;
     const newPhone = phone !== undefined ? phone : row.phone;
     const newInviteSent = invite_sent !== undefined ? (invite_sent ? 1 : 0) : row.invite_sent;
-    const newStatus = status !== undefined ? status : row.status;
+    const newStatus = status !== undefined ? normalizeStatus(status) : normalizeStatus(row.status);
     const newGroupName = group_name !== undefined 
       ? (group_name && group_name.trim() ? group_name.trim() : null)
       : row.group_name;
-    const newHasPlusOne = has_plus_one !== undefined ? (has_plus_one ? 1 : 0) : row.has_plus_one;
-    const newPlusOneName = plus_one_name !== undefined 
-      ? (plus_one_name && plus_one_name.trim() ? plus_one_name.trim() : null) 
-      : row.plus_one_name;
 
     await db.execute({
-      sql: `UPDATE guest_list SET name = ?, phone = ?, invite_sent = ?, status = ?, group_name = ?, has_plus_one = ?, plus_one_name = ? WHERE id = ?`,
-      args: [newName, newPhone, newInviteSent, newStatus, newGroupName, newHasPlusOne, newPlusOneName, id]
+      sql: `UPDATE guest_list SET name = ?, phone = ?, invite_sent = ?, status = ?, group_name = ? WHERE id = ?`,
+      args: [newName, newPhone, newInviteSent, newStatus, newGroupName, id]
     });
 
     // Se o status foi alterado e o convidado pertence a um grupo/família, atualiza todos daquele grupo
@@ -367,9 +342,7 @@ app.put('/api/guest-list/:id', async (req, res) => {
         phone: newPhone,
         invite_sent: newInviteSent,
         status: newStatus,
-        group_name: newGroupName,
-        has_plus_one: newHasPlusOne,
-        plus_one_name: newPlusOneName
+        group_name: newGroupName
       }
     });
   } catch (error) {

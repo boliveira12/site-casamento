@@ -46,21 +46,42 @@ export async function initDb() {
         name TEXT NOT NULL,
         phone TEXT,
         invite_sent INTEGER DEFAULT 0,
-        status TEXT DEFAULT 'ainda nao respondeu',
-        has_plus_one INTEGER DEFAULT 0,
-        plus_one_name TEXT,
+        status TEXT DEFAULT 'Pendente',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // Migrações dinâmicas para colunas de acompanhante (Plus One) e Grupos/Famílias
-    try { await db.execute(`ALTER TABLE guests ADD COLUMN has_plus_one INTEGER DEFAULT 0`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guests ADD COLUMN plus_one_name TEXT`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guests ADD COLUMN group_name TEXT`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN has_plus_one INTEGER DEFAULT 0`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN plus_one_name TEXT`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN group_name TEXT`); } catch (e) {}
-    try { await db.execute(`ALTER TABLE guests ADD COLUMN private_message INTEGER DEFAULT 0`); } catch (e) {}
+    // Migrações dinâmicas para Grupos/Famílias e Mensagens Privadas
+    try { await db.execute(`ALTER TABLE guests ADD COLUMN group_name TEXT`); } catch {}
+    try { await db.execute(`ALTER TABLE guest_list ADD COLUMN group_name TEXT`); } catch {}
+    try { await db.execute(`ALTER TABLE guests ADD COLUMN private_message INTEGER DEFAULT 0`); } catch {}
+
+    // Limpeza de dados legados de acompanhantes (plus one)
+    try { await db.execute(`UPDATE guest_list SET has_plus_one = 0, plus_one_name = NULL`); } catch {}
+    try { await db.execute(`UPDATE guests SET has_plus_one = 0, plus_one_name = NULL`); } catch {}
+
+    // Normalização dos status legados para apenas os valores padrão: Confirmado, Negado, Pendente
+    try {
+      await db.execute(`
+        UPDATE guest_list 
+        SET status = 'Confirmado' 
+        WHERE LOWER(TRIM(status)) IN ('confirmou', 'confirmado', 'sim');
+      `);
+      await db.execute(`
+        UPDATE guest_list 
+        SET status = 'Negado' 
+        WHERE LOWER(TRIM(status)) IN ('negou', 'negado', 'recusou', 'recusado', 'nao', 'não');
+      `);
+      await db.execute(`
+        UPDATE guest_list 
+        SET status = 'Pendente' 
+        WHERE status IS NULL 
+           OR LOWER(TRIM(status)) IN ('ainda nao respondeu', 'ainda não respondeu', 'sem resposta', 'pendente', '') 
+           OR status NOT IN ('Confirmado', 'Negado', 'Pendente');
+      `);
+    } catch (e) {
+      console.error('⚠️ Erro ao normalizar status da tabela guest_list:', e);
+    }
 
     console.log('✅ Banco de dados SQLite inicializado com sucesso!');
   } catch (error) {
