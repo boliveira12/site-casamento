@@ -31,9 +31,10 @@ export function CartDrawer() {
   } = useCart();
 
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout' | 'pix' | 'success'
-  const [guestInfo, setGuestInfo] = useState({ name: '', email: '', message: '' });
+  const [guestInfo, setGuestInfo] = useState({ name: '', phone: '', message: '' });
   const [copiedPix, setCopiedPix] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [pixPayloadStr, setPixPayloadStr] = useState('');
 
@@ -75,14 +76,37 @@ export function CartDrawer() {
     }
   };
 
-  const handleConfirmPixPayment = () => {
-    setStep('success');
+  const handleConfirmPixPayment = async () => {
+    setIsConfirmingPayment(true);
+    try {
+      await fetch('/api/cart/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: guestInfo.name,
+          phone: guestInfo.phone,
+          message: guestInfo.message,
+          total_amount: totalPrice,
+          items: cart.map((item) => ({
+            id: item.id,
+            title: item.title,
+            quantity: item.quantity,
+            price: item.price
+          }))
+        })
+      });
+    } catch (err) {
+      console.error('Erro ao registrar confirmação do carrinho:', err);
+    } finally {
+      setIsConfirmingPayment(false);
+      setStep('success');
+    }
   };
 
   const handleFinishAll = () => {
     clearCart();
     setStep('cart');
-    setGuestInfo({ name: '', email: '', message: '' });
+    setGuestInfo({ name: '', phone: '', message: '' });
     setIsCartOpen(false);
   };
 
@@ -246,13 +270,14 @@ export function CartDrawer() {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Seu E-mail ou WhatsApp
+                      Seu Telefone / WhatsApp <span className="text-rose-500">*</span>
                     </label>
                     <input
-                      type="text"
-                      value={guestInfo.email}
-                      onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
-                      placeholder="Para enviar o recibo carinhoso"
+                      type="tel"
+                      required
+                      value={guestInfo.phone}
+                      onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
+                      placeholder="Ex: (71) 99999-8888"
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition"
                     />
                   </div>
@@ -342,10 +367,20 @@ export function CartDrawer() {
                 <div className="pt-2">
                   <button
                     type="button"
+                    disabled={isConfirmingPayment}
                     onClick={handleConfirmPixPayment}
-                    className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl font-medium shadow-lg shadow-teal-200/50 flex items-center justify-center gap-2 transition transform hover:scale-[1.01]"
+                    className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl font-medium shadow-lg shadow-teal-200/50 flex items-center justify-center gap-2 transition transform hover:scale-[1.01] disabled:opacity-60 cursor-pointer"
                   >
-                    <CheckCircle2 className="w-5 h-5" /> Já Fiz o Pagamento PIX
+                    {isConfirmingPayment ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Registrando confirmação...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" /> Já Fiz o Pagamento PIX
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

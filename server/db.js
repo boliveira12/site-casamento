@@ -41,6 +41,18 @@ export async function initDb() {
 
 
     await db.execute(`
+      CREATE TABLE IF NOT EXISTS cart_orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT,
+        message TEXT,
+        total_amount REAL DEFAULT 0,
+        items_summary TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.execute(`
       CREATE TABLE IF NOT EXISTS guest_list (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,

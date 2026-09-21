@@ -99,6 +99,55 @@ app.get('/api/messages/private', async (req, res) => {
   }
 });
 
+// Registrar confirmação de pagamento do carrinho (presentes + dados do convidado)
+app.post('/api/cart/confirm', async (req, res) => {
+  const { name, phone, message, total_amount, items } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'O nome é obrigatório.' });
+  }
+
+  const itemsSummary = Array.isArray(items)
+    ? items.map((i) => `${i.quantity || 1}x ${i.title}`).join(', ')
+    : null;
+
+  try {
+    const result = await db.execute({
+      sql: `INSERT INTO cart_orders (name, phone, message, total_amount, items_summary) 
+            VALUES (?, ?, ?, ?, ?)`,
+      args: [
+        name.trim(),
+        phone && phone.trim() ? phone.trim() : null,
+        message && message.trim() ? message.trim() : null,
+        Number(total_amount) || 0,
+        itemsSummary
+      ]
+    });
+
+    res.status(201).json({
+      success: true,
+      orderId: Number(result.lastInsertRowid),
+      message: 'Pagamento e dados do carrinho registrados com sucesso!'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Listar confirmações e recados do carrinho (área dos noivos)
+app.get('/api/cart-orders', async (req, res) => {
+  try {
+    const result = await db.execute(`
+      SELECT id, name, phone, message, total_amount, items_summary, created_at 
+      FROM cart_orders 
+      ORDER BY created_at DESC
+    `);
+    res.json({ orders: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Registrar confirmação de presença (RSVP)
 app.post('/api/rsvp', async (req, res) => {
   const { guestListId, name, phone, attending, message, private_message } = req.body;
