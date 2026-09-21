@@ -123,7 +123,7 @@ export function Home() {
           setGuestMessages(data.messages);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -313,6 +313,18 @@ export function Home() {
 
       {/* Countdown Timer */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+        <p style={{
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          fontFamily: 'Georgia, serif',
+          fontSize: '20px',
+          fontWeight: 400,
+          color: '#3f2d20',
+          letterSpacing: '3px',
+          marginBottom: '32px',
+        }}>
+          Contagem Regressiva Para o Grande Dia
+        </p>
         <div className="flex justify-center gap-3 sm:gap-4">
           {[
             { value: timeLeft.days, label: 'Dias' },
