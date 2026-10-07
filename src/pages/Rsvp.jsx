@@ -201,7 +201,7 @@ export function Rsvp() {
           </h1>
 
           <p className="text-slate-600 text-sm md:text-base font-light">
-            Por favor, confirme sua presença até <strong>28 de Setembro de 2026</strong> para prepararmos cada detalhe à beira-mar com muito carinho.
+            Por favor, confirme sua presença até <strong>30 de Outubro de 2026</strong> para prepararmos cada detalhe à beira-mar com muito carinho.
           </p>
         </div>
 
@@ -388,60 +388,60 @@ export function Rsvp() {
                   </h3>
                 </div>
 
-                  {hasRegisteredPhone ? (
-                    <div className="space-y-3">
-                      <p className="text-xs text-slate-600">
-                        Para confirmar a sua identidade como <strong>{selectedGuest.name}</strong>, digite os <strong>4 últimos dígitos</strong> do número de telefone cadastrado:
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="text"
-                          maxLength={4}
-                          placeholder="Ex: 5432"
-                          value={phoneDigitsInput}
-                          onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
-                          className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
-                            ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
-                            : phoneDigitsInput.length === 4 && !isPhoneConfirmed
-                              ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
-                              : 'border-teal-300 focus:ring-teal-500 text-slate-800'
-                            }`}
-                        />
-
-                        <div className="text-xs font-semibold">
-                          {isPhoneConfirmed ? (
-                            <span className="text-emerald-700 flex items-center gap-1 font-bold">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                              Dígitos validados com sucesso!
-                            </span>
-                          ) : phoneDigitsInput.length === 4 ? (
-                            <span className="text-rose-600 flex items-center gap-1">
-                              <AlertCircle className="w-4 h-4 text-rose-600" />
-                              Dígitos incorretos. Verifique e tente novamente.
-                            </span>
-                          ) : (
-                            <span className="text-slate-500">
-                              Digite os 4 dígitos e confirme sua identidade.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <p className="text-xs text-slate-600">
-                        Não há número de telefone registrado para <strong>{selectedGuest.name}</strong> na lista. Por favor, informe seu telefone completo abaixo para confirmar a presença:
-                      </p>
+                {hasRegisteredPhone ? (
+                  <div className="space-y-3">
+                    <p className="text-xs text-slate-600">
+                      Para confirmar a sua identidade como <strong>{selectedGuest.name}</strong>, digite os <strong>4 últimos dígitos</strong> do número de telefone cadastrado:
+                    </p>
+                    <div className="flex items-center gap-3">
                       <input
                         type="text"
-                        placeholder="(71) 99999-8888"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-teal-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        maxLength={4}
+                        placeholder="Ex: 5432"
+                        value={phoneDigitsInput}
+                        onChange={(e) => setPhoneDigitsInput(e.target.value.replace(/\D/g, ''))}
+                        className={`w-36 px-4 py-2.5 rounded-xl border text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 bg-white ${isPhoneConfirmed
+                          ? 'border-emerald-400 focus:ring-emerald-500 text-emerald-800'
+                          : phoneDigitsInput.length === 4 && !isPhoneConfirmed
+                            ? 'border-rose-400 focus:ring-rose-500 text-rose-800'
+                            : 'border-teal-300 focus:ring-teal-500 text-slate-800'
+                          }`}
                       />
+
+                      <div className="text-xs font-semibold">
+                        {isPhoneConfirmed ? (
+                          <span className="text-emerald-700 flex items-center gap-1 font-bold">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            Dígitos validados com sucesso!
+                          </span>
+                        ) : phoneDigitsInput.length === 4 ? (
+                          <span className="text-rose-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4 text-rose-600" />
+                            Dígitos incorretos. Verifique e tente novamente.
+                          </span>
+                        ) : (
+                          <span className="text-slate-500">
+                            Digite os 4 dígitos e confirme sua identidade.
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-slate-600">
+                      Não há número de telefone registrado para <strong>{selectedGuest.name}</strong> na lista. Por favor, informe seu telefone completo abaixo para confirmar a presença:
+                    </p>
+                    <input
+                      type="text"
+                      placeholder="(71) 99999-8888"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-teal-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                )}
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
