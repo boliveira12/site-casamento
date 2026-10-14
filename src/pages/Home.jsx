@@ -38,6 +38,43 @@ const photos = [
   { src: foto11, alt: 'Luiz Gustavo e Luíza 11' },
 ];
 
+function GuestMessageCard({ item }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const maxLength = 130;
+  const isLong = item.message && item.message.length > maxLength;
+  const displayedText = isLong && !isExpanded
+    ? `${item.message.slice(0, maxLength).trim()}...`
+    : item.message;
+
+  return (
+    <div
+      className="flex flex-col justify-between p-6 rounded-2xl border border-amber-200/50 shadow-xs hover:shadow-md transition-all duration-300"
+      style={{ backgroundColor: '#faf6f0' }}
+    >
+      <div className="mb-4">
+        <Quote className="w-5 h-5 text-amber-500/70 mb-2 rotate-180" />
+        <p className="text-slate-700 text-sm md:text-base leading-relaxed italic">
+          "{displayedText}"
+        </p>
+        {isLong && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-2 text-xs font-semibold text-amber-700 hover:text-amber-900 underline underline-offset-2 transition-colors cursor-pointer"
+          >
+            {isExpanded ? 'Ver menos' : 'Ler mais'}
+          </button>
+        )}
+      </div>
+      <div className="pt-3 border-t border-amber-200/50 flex items-center">
+        <span className="font-serif font-bold text-slate-900 text-sm">
+          {item.name}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function Home() {
   const [apiStatus, setApiStatus] = useState({ loading: true, online: false });
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -395,28 +432,7 @@ export function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {guestMessages.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col justify-between p-6 rounded-2xl border border-amber-200/50 shadow-xs hover:shadow-md transition-all duration-300"
-                style={{ backgroundColor: '#faf6f0' }}
-              >
-                <div className="mb-4">
-                  <Quote className="w-5 h-5 text-amber-500/70 mb-2 rotate-180" />
-                  <p className="text-slate-700 text-sm md:text-base leading-relaxed italic">
-                    "{item.message}"
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-amber-200/50 flex items-center justify-between">
-                  <span className="font-serif font-bold text-slate-900 text-sm">
-                    {item.name}
-                  </span>
-                  {item.created_at && !isNaN(new Date(String(item.created_at).replace(' ', 'T')).getTime()) && (
-                    <span className="text-[11px] font-mono text-slate-400">
-                      {new Date(String(item.created_at).replace(' ', 'T')).toLocaleDateString('pt-BR')}
-                    </span>
-                  )}
-                </div>
-              </div>
+              <GuestMessageCard key={item.id} item={item} />
             ))}
           </div>
         </section>
