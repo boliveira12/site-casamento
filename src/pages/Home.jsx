@@ -406,6 +406,9 @@ export function Home() {
                   </p>
                 </div>
                 <div className="pt-3 border-t border-amber-200/50 flex items-center">
+                  <span className="font-serif font-bold text-slate-900 text-sm">
+                    {item.name}
+                  </span>
                 </div>
               </div>
             ))}
